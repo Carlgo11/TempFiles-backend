@@ -8,21 +8,21 @@ use Exception;
 
 class Delete extends API
 {
-    public function __construct(string $method) {
-        if ($method !== 'DELETE') throw new Exception("Bad method. Use DELETE.");
+	public function __construct(string $method) {
+		if ($method !== 'DELETE') throw new Exception("Bad method. Use DELETE.");
 
-        $id = Misc::getVar('id');
-        $password = Misc::getVar('p');
-        $deletionPassword = Misc::getVar('delete');
+		$id = Misc::getVar('id');
+		$password = Misc::getVar('p');
+		$deletionPassword = Misc::getVar('delete');
 
-        if ($file = DataStorage::getFile($id, $password))
-            $db_deletionPassword = $file->getDeletionPassword();
-        else throw new Exception("Bad ID or Password.");
+		if ($file = DataStorage::getFile($id, $password))
+			$db_deletionPassword = $file->getDeletionPassword();
+		else throw new Exception("Bad ID or Password.");
 
-        if (password_verify($deletionPassword, $db_deletionPassword)) {
-            parent::addMessage('success', (boolean)DataStorage::deleteFile($id));
-            return parent::outputJSON(200);
-        }
-        throw new Exception("Bad ID or Password.");
-    }
+		if (password_verify($deletionPassword, $db_deletionPassword)) {
+			parent::addMessage('success', (boolean)DataStorage::deleteFile($id));
+			return parent::outputJSON(200);
+		}
+		throw new Exception("Bad ID or Password.");
+	}
 }

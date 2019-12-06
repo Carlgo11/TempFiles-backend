@@ -1,0 +1,25 @@
+name: Test PHPUnit
+
+on:
+  push:
+    paths:
+      - 'src/**'
+      - 'tests/**'
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'tests/**'
+
+jobs:
+  build:
+    name: PHPUnit - Build & Test
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Install dependencies
+      run: composer install --prefer-dist --no-progress --no-suggest
+
+    - name: Run PHPUnit tests
+      run: ./vendor/bin/phpunit -c phpunit.xml --teamcity
