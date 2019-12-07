@@ -1,6 +1,7 @@
 <?php
 
 namespace com\carlgo11\tempfiles;
+
 class File
 {
 
@@ -85,7 +86,7 @@ class File
 	 * @return boolean Returns TRUE if the action was successfully executed, otherwise FALSE.
 	 * @since 2.2
 	 */
-	public function setContent($content) {
+	public function setContent(string $content) {
 		return ($this->_content = $content) === $content;
 	}
 

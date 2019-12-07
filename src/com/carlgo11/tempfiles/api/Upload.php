@@ -51,9 +51,10 @@ class Upload extends API
 				if ($password !== NULL) {
 					if ($fileContent['error'] === 0) {
 						$file->setContent(file_get_contents($fileContent['tmp_name']));
-						if (!($upload = DataStorage::uploadFile($file, $password))) {
+						if (!($upload = DataStorage::uploadFile($file, $password)))
 							throw new Exception("Connection to our database failed.");
-						}
+						if (!DataStorage::getFile($file->getID(), $password) instanceof File)
+							throw new Exception("Unable to verify file integrity.");
 					} else {
 						throw new InvalidArgumentException("Upload failed. Either the file is larger than it's supposed to be or the upload was interrupted.");
 					}

@@ -85,10 +85,11 @@ class DataStorage
 	 * @param string $id The ID for the file.
 	 * @param string $password Description
 	 * @return mixed Returns the downloaded and decrypted file (object) if successfully downloaded and decrypted, otherwise NULL (boolean).
-	 * @since 2.0
+	 * @throws Exception
 	 * @since 2.3 Add support for AEAD cipher modes.
 	 * @global array $conf Configuration variables.
 	 * @global object $mysql_connection MySQL connection.
+	 * @since 2.0
 	 */
 	public static function getFile(string $id, string $password) {
 		global $conf;
@@ -108,6 +109,7 @@ class DataStorage
 
 		if ($enc_content !== NULL) {
 			$metadata_string = Encryption::decrypt($enc_filedata, $password, $iv[2], $iv[3]);
+			if($metadata_string === FALSE) throw new Exception("Unable to decrypt file metadata.");
 
 			/** @var array $metadata_array
 			 * Array containing the following: [name, size, type, deletionPassword, views_array[ 0 => currentViews, 1 => maxViews]]
