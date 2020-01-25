@@ -51,9 +51,9 @@ A list of available API calls can be found over at [Postman](https://documenter.
    # Env vars
    fastcgi_param ag44jc7aqs2rsup2bb6cx7utc 'localhost';	# hostname
    fastcgi_param hp7wz20wu4qfbfcmqywfai1j4 'tempfiles';	# username
-   fastcgi_param mom8c5hrbn8c1r5lro1imfyax 'password';	# password
+   fastcgi_param mom8c5hrbn8c1r5lro1imfyax 'password';		# password
    fastcgi_param qb1yi60nrz3tjjjqqb7l2yqra 'tempfiles';	# database
-   fastcgi_param rb421p9wniz81ttj7bdgrg0ub 'files';	# table
+   fastcgi_param rb421p9wniz81ttj7bdgrg0ub 'files';		# table
    ```
 
 8. Generate certificates.
