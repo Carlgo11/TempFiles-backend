@@ -24,5 +24,5 @@ return [
 	# Download URL
 	'download-url' => 'https://d.carlgo11.com/%1$s/?p=%2$s',
 	# API Download URL
-	'api-download-url' => 'https://api.tempfiles.carlgo11.com/download/?id=%1$s&p=%1$s'
+	'api-download-url' => 'https://api.tempfiles.carlgo11.com/download/?id=%1$s&p=%2$s'
 ];

@@ -1,12 +1,14 @@
 <?php
+require_once __DIR__ . '/src/com/carlgo11/tempfiles/Autoload.php';
 
 function getCURL(string $id, string $password) {
 	require_once __DIR__ . '/src/com/carlgo11/tempfiles/Autoload.php';
 	global $conf;
+	$d_url = sprintf($conf['api-download-url'], $id, $password);
 
 	$curl = curl_init();
 	curl_setopt_array($curl, [
-		CURLOPT_URL => $conf['api-download-url'],
+		CURLOPT_URL => $d_url,
 		CURLOPT_RETURNTRANSFER => TRUE,
 		CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_2,
 		CURLOPT_CUSTOMREQUEST => 'GET',
