@@ -1,9 +1,12 @@
 <?php
 
 function getCURL(string $id, string $password) {
+	require_once __DIR__ . '/src/com/carlgo11/tempfiles/Autoload.php';
+	global $conf;
+
 	$curl = curl_init();
 	curl_setopt_array($curl, [
-		CURLOPT_URL => "https://api.tempfiles.carlgo11.com/download/?id={$id}&p={$password}",
+		CURLOPT_URL => $conf['api-download-url'],
 		CURLOPT_RETURNTRANSFER => TRUE,
 		CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_2,
 		CURLOPT_CUSTOMREQUEST => 'GET',

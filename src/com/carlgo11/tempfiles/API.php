@@ -27,7 +27,8 @@ class API
 		header('Access-Control-Allow-Origin: *'); // Allows other domains to send data to the API.
 		header('Content-Type: application/json; charset=utf-8');
 		http_response_code($HTTPCode);
-		return print(json_encode($this->getMessages(), JSON_PRETTY_PRINT));
+		$json = json_encode($this->getMessages(), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+		return print($json);
 	}
 
 	public function getMessages() {

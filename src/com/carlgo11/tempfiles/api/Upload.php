@@ -51,7 +51,7 @@ class Upload extends API
 				if ($password !== NULL) {
 					if ($fileContent['error'] === 0) {
 						$file->setContent(file_get_contents($fileContent['tmp_name']));
-						if (!($upload = DataStorage::uploadFile($file, $password)))
+						if (!$upload = DataStorage::uploadFile($file, $password))
 							throw new Exception("Connection to our database failed.");
 						if (!DataStorage::getFile($file->getID(), $password) instanceof File)
 							throw new Exception("Unable to verify file integrity.");
@@ -66,14 +66,10 @@ class Upload extends API
 			}
 
 			if (is_bool($upload) && $upload) {
-				$protocol = "http";
-				$https = filter_input(INPUT_SERVER, 'HTTPS');
-				if (isset($https) && $https !== 'off') {
-					$protocol = "https";
-				}
+				global $conf;
 
 				// Full URI to download the file
-				$completeURL = $protocol . "://d.carlgo11.com/" . $file->getID() . "/?p=" . urlencode($password);
+				$completeURL = sprintf($conf['download-url'], $file->getID(), $password);
 
 				$output['success'] = TRUE;
 				$output['url'] = $completeURL;

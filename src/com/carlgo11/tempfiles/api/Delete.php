@@ -9,7 +9,6 @@ use Exception;
 class Delete extends API
 {
 	public function __construct(string $method) {
-		if ($method !== 'DELETE') throw new Exception("Bad method. Use DELETE.");
 
 		$id = Misc::getVar('id');
 		$password = Misc::getVar('p');

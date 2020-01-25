@@ -8,7 +8,7 @@
 
 return [
 	# Allowed formats <n>MB, <n>GB, <n>TB, <n>PB.
-	'max-file-size' => '12MB',
+	'max-file-size' => '100MB',
 	#'mysql-url' => 'localhost',
 	'mysql-url' => getenv('ag44jc7aqs2rsup2bb6cx7utc'),
 	#'mysql-user => 'tempfiles',
@@ -20,5 +20,9 @@ return [
 	#'mysql-table' => 'files',
 	'mysql-table' => getenv('rb421p9wniz81ttj7bdgrg0ub'),
 	# Encryption algorithm to use for encrypting uploads.
-	'Encryption-Method' => 'aes-256-gcm'
+	'Encryption-Method' => 'aes-256-gcm',
+	# Download URL
+	'download-url' => 'https://d.carlgo11.com/%1$s/?p=%2$s',
+	# API Download URL
+	'api-download-url' => 'https://api.tempfiles.carlgo11.com/download/?id=%1$s&p=%1$s'
 ];

@@ -15,6 +15,7 @@ if (!isset($_ENV['phpunit']))
 	or mySQLError($mysql_connection);
 
 
+
 /**
  * Outputs MySQL error.
  *
