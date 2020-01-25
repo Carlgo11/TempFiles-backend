@@ -104,12 +104,12 @@ class DataStorage
 		$query->close();
 
 		$file = new File(NULL, $id);
-		$iv = explode(",", base64_decode($iv_encoded));
+		$iv = explode(" ", base64_decode($iv_encoded));
 		$file->setIV($iv);
 
 		if ($enc_content !== NULL) {
 			$metadata_string = Encryption::decrypt($enc_filedata, $password, $iv[2], $iv[3]);
-			if($metadata_string === FALSE) throw new Exception("Unable to decrypt file metadata.");
+			if ($metadata_string === FALSE) return FALSE;
 
 			/** @var array $metadata_array
 			 * Array containing the following: [name, size, type, deletionPassword, views_array[ 0 => currentViews, 1 => maxViews]]
@@ -143,22 +143,23 @@ class DataStorage
 	 */
 	public static function uploadFile(File $file, string $password) {
 		global $conf;
-		global $mysql_connection;
+		global /** @var \mysqli_driver $mysql_connection */
+		$mysql_connection;
 		$fileContent = Encryption::encryptFileContent($file->getContent(), $password);
 		$fileMetadata = Encryption::encryptFileDetails($file->getMetaData(), $file->getDeletionPassword(), 0, $file->getMaxViews(), $password);
 		$iv = [$fileContent['iv'], $fileContent['tag'], $fileMetadata['iv'], $fileMetadata['tag']];
-		$enc_iv = base64_encode(implode(',', $iv));
+		$enc_iv = base64_encode(implode(' ', $iv));
 		$null = NULL;
 
 		try {
+			/** @var \mysqli_stmt $query */
 			$query = $mysql_connection->prepare("INSERT INTO `" . $conf['mysql-table'] . "` (id, iv, metadata, content) VALUES (?, ?, ?, ?)");
 			if (!$query)
 				throw new Exception('prepare() failed: ' . htmlspecialchars($mysql_connection->error));
 
 			$id = $file->getID();
 
-			$bp = $query->bind_param("sssb", $id, $enc_iv, $fileMetadata['data'], $null);
-			if (!$bp)
+			if (!$query->bind_param("sssb", $id, $enc_iv, $fileMetadata['data'], $null))
 				throw new Exception('bind_param() failed: ' . htmlspecialchars($query->error));
 
 			// Replace $null with content blob
@@ -167,7 +168,6 @@ class DataStorage
 
 			if (!$query->execute())
 				throw new Exception('execute() failed: ' . htmlspecialchars($query->error));
-
 			$query->close();
 			return TRUE;
 		} catch (Exception $e) {

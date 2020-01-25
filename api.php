@@ -37,6 +37,7 @@ try {
 } catch (Exception $ex) {
 //    error_log($ex); //Spews out the error to log. Maybe not so good for production env?
 	$api = new API();
+	$api->addMessage('success', false);
 	$api->addMessage('error', $ex->getMessage());
 	$api->outputJSON(500);
 }

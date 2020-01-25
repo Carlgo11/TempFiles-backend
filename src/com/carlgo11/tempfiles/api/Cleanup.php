@@ -12,7 +12,7 @@ class Cleanup extends API
 		if ($method !== 'PURGE') throw new Exception("Bad HTTP method. Use PURGE.");
 
 		$status = filter_var(DataStorage::deleteOldFiles(), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
-		parent::addMessage('status', $status);
+		parent::addMessage('success', $status);
 		parent::outputJSON(202);
 	}
 }
