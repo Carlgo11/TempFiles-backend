@@ -4,7 +4,7 @@
 ## API calls :mega:
 A list of available API calls can be found over at [Postman](https://documenter.getpostman.com/view/1675224/SW7ezkZn).
 
-## Local installation :desktop-computer:
+## Local installation :desktop_computer:
 
 1. Install PHP, Nginx, Git, MySQL
    ```BASH
