@@ -53,14 +53,13 @@ class EncryptionTest extends TestCase
         $this->assertIsArray($decrypted);
 
         // Test content of $decrypted
-        $this->assertEquals($file['name'], base64_decode($decrypted[0]));
-        $this->assertEquals($file['size'], base64_decode($decrypted[1]));
-        $this->assertEquals($file['type'], base64_decode($decrypted[2]));
-        $this->assertTrue(password_verify($delpass, base64_decode($decrypted[3])));
+        $this->assertEquals($file['name'], $decrypted[0]);
+        $this->assertEquals($file['size'], $decrypted[1]);
+        $this->assertEquals($file['type'], $decrypted[2]);
+        $this->assertTrue(password_verify($delpass, $decrypted[3]));
 
         // Test view array
-        $decrypted_views = explode(" ", base64_decode($decrypted[4]));
-        $this->assertEquals($currentViews, $decrypted_views[0]);
-        $this->assertEquals($maxViews, $decrypted_views[1]);
+        $this->assertEquals($currentViews, $decrypted[4]);
+        $this->assertEquals($maxViews, $decrypted[5]);
     }
 }

@@ -2,11 +2,10 @@
 
 namespace com\carlgo11\tempfiles\api;
 
-use com\carlgo11\tempfiles\DataStorage;
 use com\carlgo11\tempfiles\File;
+use com\carlgo11\tempfiles\FileStorage;
 use com\carlgo11\tempfiles\Misc;
 use Exception;
-use InvalidArgumentException;
 
 class Upload extends API
 {
@@ -16,8 +15,7 @@ class Upload extends API
 	 * @param string $method HTTP method.
 	 * @throws Exception Throws exception if HTTP method is invalid.
 	 */
-	function __construct(string $method)
-	{
+	function __construct(string $method) {
 		global $conf;
 
 		if ($method !== 'POST') throw new Exception("Bad method. Use POST.");
@@ -28,11 +26,10 @@ class Upload extends API
 
 			if (Misc::getVar('maxviews') !== NULL)
 				$file->setMaxViews(Misc::getVar('maxviews'));
-			if (Misc::getVar('password') !== NULL) {
+			if (Misc::getVar('password') !== NULL)
 				$password = Misc::getVar('password');
-			} else {
+			else
 				$password = Misc::generatePassword(6, 20);
-			}
 
 			$file->setDeletionPassword(Misc::generatePassword(12, 32));
 

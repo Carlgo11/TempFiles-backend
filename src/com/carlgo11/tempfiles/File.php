@@ -184,8 +184,11 @@ class File
 		return ($this->_metaData = $metadata) === $metadata;
 	}
 
-	public function getIV() {
-		return $this->_iv;
+	public function getIV(string $key = NULL) {
+		if ($key !== NULL)
+			return $this->_iv[$key];
+		else
+			return $this->_iv;
 	}
 
 	public function setIV(array $iv) {

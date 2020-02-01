@@ -3,6 +3,7 @@
 namespace com\carlgo11\tempfiles\api;
 
 use com\carlgo11\tempfiles\DataStorage;
+use com\carlgo11\tempfiles\FileStorage;
 use com\carlgo11\tempfiles\Misc;
 use Exception;
 
@@ -20,7 +21,9 @@ class Download extends API
 
 		$id = Misc::getVar('id');
 		$p = Misc::getVar('p');
-		$file = DataStorage::getFile($id, $p);
+
+		$fileStorage = new FileStorage();
+		$file = $fileStorage->getFile($id, $p);
 		if (isset($file)) {
 			$metadata = $file->getMetaData();
 			$content = base64_encode($file->getContent());

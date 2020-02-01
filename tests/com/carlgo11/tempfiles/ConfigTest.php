@@ -10,7 +10,7 @@ class ConfigTest extends TestCase
         global $conf;
         $this->assertIsArray($conf);
 
-        $vars = ['max-file-size', 'mysql-url', 'mysql-user', 'mysql-password', 'mysql-db', 'mysql-table', 'Encryption-Method'];
+        $vars = ['max-file-size', 'file-path', 'Encryption-Method', 'download-url', 'api-download-url'];
         foreach ($vars as $var){
             $this->assertArrayHasKey($var, $conf, 'Config.php doesn\'t include the key "'.$var.'".');
         }
