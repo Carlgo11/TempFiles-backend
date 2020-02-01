@@ -9,23 +9,6 @@ checkFile(__DIR__ . '/Misc.php');
 checkFile(__DIR__ . '/File.php');
 checkFile(__DIR__ . '/API.php');
 
-// Load MySQL connection unless the script is run by PHPUnit.
-if (!isset($_ENV['phpunit']))
-	$mysql_connection = mysqli_connect($conf['mysql-url'], $conf['mysql-user'], $conf['mysql-password'], $conf['mysql-db'])
-	or mySQLError($mysql_connection);
-
-
-
-/**
- * Outputs MySQL error.
- *
- * @param $mysql_connection The failed MySQL connection.
- */
-function mySQLError($mysql_connection) {
-	error_log('MySQL connection failed: ' . htmlspecialchars($mysql_connection->error));
-	http_response_code(500);
-	die("Connection to our database failed.");
-}
 
 /**
  * Checks if a file exists.

@@ -16,7 +16,8 @@ class Upload extends API
 	 * @param string $method HTTP method.
 	 * @throws Exception Throws exception if HTTP method is invalid.
 	 */
-	function __construct(string $method) {
+	function __construct(string $method)
+	{
 		global $conf;
 
 		if ($method !== 'POST') throw new Exception("Bad method. Use POST.");
@@ -41,59 +42,36 @@ class Upload extends API
 				'type' => $fileContent['type']
 			];
 
-			if (!in_array(NULL, $metadata)) {
-				$file->setMetaData($metadata);
+			$file->setMetaData($metadata);
+			$file->setContent(file_get_contents($fileContent['tmp_name']));
+
+			include_once __DIR__ . "/../FileStorage.php";
+			$fileStorage = new FileStorage();
+			$fileStorage->saveFile($file, $password);
+
+
+			// Full URI to download the file
+			$completeURL = sprintf($conf['download-url'], $file->getID(), $password);
+
+			$output['success'] = TRUE;
+			$output['url'] = $completeURL;
+			$output['id'] = $file->getID();
+			$output['deletepassword'] = $file->getDeletionPassword();
+
+			if (Misc::getVar('password') === NULL) {
+				$output['password-mode'] = 'Server generated.';
 			} else {
-				throw new \UnexpectedValueException("Incomplete file transfer");
+				$output['password-mode'] = 'User generated.';
 			}
 
-			if ($file->getMetaData('size') <= Misc::convertToBytes($conf['max-file-size'])) {
-				if ($password !== NULL) {
-					if ($fileContent['error'] === 0) {
-						$file->setContent(file_get_contents($fileContent['tmp_name']));
-						if (!$upload = DataStorage::uploadFile($file, $password))
-							throw new Exception("Connection to our database failed.");
-						if (!DataStorage::getFile($file->getID(), $password) instanceof File)
-							throw new Exception("Unable to verify file integrity.");
-					} else {
-						throw new InvalidArgumentException("Upload failed. Either the file is larger than it's supposed to be or the upload was interrupted.");
-					}
-				} else {
-					throw new InvalidArgumentException("Password not set.");
-				}
-			} else {
-				throw new InvalidArgumentException("File size too large. Maximum allowed " . $conf['max-file-size'] . " (currently " . $file->getMetaData('size') . ")");
+			$output['password'] = $password;
+
+			if ($file->getMaxViews() !== NULL) {
+				$output['maxviews'] = (int)$file->getMaxViews();
 			}
-
-			if (is_bool($upload) && $upload) {
-				global $conf;
-
-				// Full URI to download the file
-				$completeURL = sprintf($conf['download-url'], $file->getID(), $password);
-
-				$output['success'] = TRUE;
-				$output['url'] = $completeURL;
-				$output['id'] = $file->getID();
-				$output['deletepassword'] = $file->getDeletionPassword();
-
-				if (Misc::getVar('password') === NULL) {
-					$output['password-mode'] = 'Server generated.';
-				} else {
-					$output['password-mode'] = 'User generated.';
-				}
-
-				$output['password'] = $password;
-
-				if ($file->getMaxViews() !== NULL) {
-					$output['maxviews'] = (int)$file->getMaxViews();
-				}
-			} else {
-				throw new Exception($upload);
-			}
-		} else {
-			throw new InvalidArgumentException('No file supplied.');
+			parent::addMessages($output);
+			return parent::outputJSON(201);
 		}
-		parent::addMessages($output);
-		return parent::outputJSON(201);
 	}
 }
+

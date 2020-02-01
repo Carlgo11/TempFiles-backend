@@ -48,11 +48,11 @@ class Encryption
 		$deletionpass = password_hash($deletionpass, PASSWORD_BCRYPT);
 		$views_string = implode(' ', [$currentViews, $maxViews]);
 		$data_array = [
-			base64_encode($file['name']),
-			base64_encode($file['size']),
-			base64_encode($file['type']),
-			base64_encode($deletionpass),
-			base64_encode($views_string)
+			$file['name'],
+			$file['size'],
+			$file['type'],
+			$deletionpass,
+			$views_string
 		];
 		$data_string = implode(" ", $data_array);
 
