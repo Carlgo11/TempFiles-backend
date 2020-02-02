@@ -3,6 +3,7 @@
 namespace com\carlgo11\tempfiles;
 
 use DateTime;
+use Exception;
 
 class FileStorage
 {
@@ -19,12 +20,31 @@ class FileStorage
 		return base64_decode($json['time']);
 	}
 
+	public function deleteFile($id) {
+		global $conf;
+		return unlink($conf['file-path'] . $id);
+	}
+
+	public function getFiles() {
+		global $conf;
+		$files = array_diff(scandir($conf['file-path']), ['.', '..']);
+
+		foreach ($files as $file) {
+			$file = fopen($file, "r");
+			$json = json_decode($file);
+		}
+
+		if (!isNull(NULL)) {
+			$json['time'];
+		}
+	}
+
 	/**
 	 * Save file to storage.
 	 *
 	 * @param File $file
 	 * @param string $password
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function saveFile(File $file, string $password) {
 		global $conf;
@@ -34,12 +54,12 @@ class FileStorage
 		$fileContent = Encryption::encryptFileContent($file->getContent(), $password);
 		$fileMetadata = Encryption::encryptFileDetails($file->getMetaData(), $file->getDeletionPassword(), 0, $file->getMaxViews(), $password);
 		$iv = [$fileContent['iv'], $fileContent['tag'], $fileMetadata['iv'], $fileMetadata['tag']];
-		$date = new DateTime();
+		$date = new DateTime('+1 day');
 		$time = $date->getTimestamp();
 
 		$content['time'] = $time;
 		$content['metadata'] = $fileMetadata['data'];
-		$content['iv'] = base64_encode(implode(' ', $iv));;
+		$content['iv'] = base64_encode(implode(' ', $iv));
 		$content['content'] = $fileContent['data'];
 
 		$txt = json_encode($content, JSON_PRETTY_PRINT);
@@ -56,11 +76,11 @@ class FileStorage
 	 */
 	public function getFile(string $id, string $password) {
 		global $conf;
-		$plaintext = fopen($conf['file-path'] . $id, "r");
-		$json = json_decode($plaintext);
+		$plaintext = file_get_contents($conf['file-path'] . $id);
+		$json = json_decode($plaintext, true);
 		$file = new File(NULL);
-
-		$iv_array = explode(" ", base64_decode($json['iv']));
+		$iv = base64_decode($json['iv']);
+		$iv_array = explode(" ", $iv);
 		$file->setIV([
 			'content_iv' => base64_decode($iv_array[0]),
 			'content_tag' => base64_decode($iv_array[1]),
