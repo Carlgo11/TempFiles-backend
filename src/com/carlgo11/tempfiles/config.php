@@ -8,7 +8,7 @@
 
 return [
 	# File storage directory
-	'file-path' => 'C:\\Users\\carl.HOME\\AppData\\Local\\Temp\\',
+	'file-path' => '/tmp/tempfiles',
 	# Allowed formats <n>MB, <n>GB, <n>TB, <n>PB.
 	'max-file-size' => '100MB',
 	# Encryption algorithm to use for encrypting uploads.
