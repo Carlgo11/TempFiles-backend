@@ -16,14 +16,16 @@ class Encryption
 	 * @param string $password Password used to decrypt.
 	 * @param string $iv IV for decryption.
 	 * @param string $tag AEAD tag from the data encryption.
+	 * @param string $options OPENSSL options.
 	 * @return string Returns decrypted data.
+	 * @global array $conf Configuration variables.
 	 * @since 2.0
 	 * @since 2.3 Added support for AEAD cipher modes.
 	 * @global array $conf Configuration variables.
 	 */
-	public static function decrypt(string $data, string $password, string $iv, string $tag = NULL) {
+	public static function decrypt(string $data, string $password, string $iv, string $tag = NULL, $options = NULL) {
 		global $conf;
-		return openssl_decrypt($data, $conf['Encryption-Method'], $password, NULL, $iv, $tag);
+		return openssl_decrypt($data, $conf['Encryption-Method'], $password, $options, $iv, $tag);
 	}
 
 	/**
@@ -34,7 +36,7 @@ class Encryption
 	 * @param int $currentViews Current views of the file.
 	 * @param int $maxViews Max allowable views of the file before deletion.
 	 * @param string $password Password used to encrypt the data.
-	 * @return array Returns encrypted file metadata encoded with base64.
+	 * @return array|false
 	 * @since 2.0
 	 * @since 2.2 Added $deletionpass to the array of things to encrypt.
 	 * @since 2.3 Added support for AEAD cipher modes.
@@ -46,7 +48,7 @@ class Encryption
 		$iv = self::getIV($cipher);
 
 		$deletionpass = password_hash($deletionpass, PASSWORD_BCRYPT);
-		$views_string = implode(' ', [$currentViews, $maxViews]);
+		$views_string = base64_encode(implode(' ', [$currentViews, $maxViews]));
 		$data_array = [
 			$file['name'],
 			$file['size'],
@@ -57,11 +59,11 @@ class Encryption
 		$data_string = implode(" ", $data_array);
 
 		$data_enc = base64_encode(openssl_encrypt($data_string, $cipher, $password, OPENSSL_RAW_DATA, $iv, $tag));
-		if (Encryption::decrypt($data_enc, $password, $iv, $tag) !== FALSE)
+		if (Encryption::decrypt(base64_decode($data_enc), $password, $iv, $tag, OPENSSL_RAW_DATA) != FALSE)
 			return ['data' => $data_enc, 'iv' => $iv, 'tag' => $tag];
 		else {
 			error_log("Decryption returned false");
-			return self::encryptFileDetails($file, $deletionpass, $currentViews, $maxViews, $password);
+			return false;
 		}
 	}
 

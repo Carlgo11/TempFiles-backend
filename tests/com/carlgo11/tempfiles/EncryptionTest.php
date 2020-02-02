@@ -26,7 +26,7 @@ class EncryptionTest extends TestCase
             $this->assertIsString($enc_content[$k]);
         }
 
-        $this->assertIsString(Encryption::decrypt($enc_content['data'], $password, $enc_content['iv'], $enc_content['tag']));
+        $this->assertIsString(Encryption::decrypt($enc_content['data'], $password, $enc_content['iv'], $enc_content['tag'], NULL));
     }
 
     public function testEncryptFileDetails() {
@@ -47,7 +47,7 @@ class EncryptionTest extends TestCase
         $this->assertIsString($encrypted['iv']);
         $this->assertIsString($encrypted['tag']);
 
-        $decrypted = explode(" ", Encryption::decrypt($encrypted['data'], $password, $encrypted['iv'], $encrypted['tag']));
+        $decrypted = explode(" ", Encryption::decrypt(base64_decode($encrypted['data']), $password, $encrypted['iv'], $encrypted['tag'], OPENSSL_RAW_DATA));
 
         // Test $decrypted output
         $this->assertIsArray($decrypted);
@@ -58,8 +58,9 @@ class EncryptionTest extends TestCase
         $this->assertEquals($file['type'], $decrypted[2]);
         $this->assertTrue(password_verify($delpass, $decrypted[3]));
 
+        $views = explode(" ", base64_decode($decrypted[4]));
         // Test view array
-        $this->assertEquals($currentViews, $decrypted[4]);
-        $this->assertEquals($maxViews, $decrypted[5]);
+        $this->assertEquals($currentViews, $views[0]);
+        $this->assertEquals($maxViews, $views[1]);
     }
 }

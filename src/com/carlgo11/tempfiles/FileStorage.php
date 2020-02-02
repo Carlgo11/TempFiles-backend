@@ -44,6 +44,7 @@ class FileStorage
 	 *
 	 * @param File $file
 	 * @param string $password
+	 * @return bool
 	 * @throws Exception
 	 */
 	public function saveFile(File $file, string $password) {
@@ -53,7 +54,7 @@ class FileStorage
 
 		$fileContent = Encryption::encryptFileContent($file->getContent(), $password);
 		$fileMetadata = Encryption::encryptFileDetails($file->getMetaData(), $file->getDeletionPassword(), 0, $file->getMaxViews(), $password);
-		$iv = [base64_encode($fileContent['iv']), base64_encode($fileContent['tag']), base64_encode($fileMetadata['iv']), base64_encode($fileMetadata['tag'])];
+		$iv = [$fileContent['iv'], $fileContent['tag'], $fileMetadata['iv'], $fileMetadata['tag']];
 		$date = new DateTime('+1 day');
 		$time = $date->getTimestamp();
 
@@ -64,7 +65,7 @@ class FileStorage
 
 		$txt = json_encode($content, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 		fwrite($newFile, $txt);
-		fclose($newFile);
+		return fclose($newFile);
 	}
 
 	/**
@@ -81,18 +82,15 @@ class FileStorage
 		$file = new File(NULL);
 		$iv = base64_decode($json['iv']);
 		$iv_array = explode(' ', $iv);
-		$file->setIV([
-			'content_iv' => base64_decode($iv_array[0]),
-			'content_tag' => base64_decode($iv_array[1]),
-			'metadata_iv' => base64_decode($iv_array[2]),
-			'metadata_tag' => base64_decode($iv_array[3])
-		]);
+		$file->setIV($iv_array);
 
-		$content = Encryption::decrypt($json['content'], $password, $file->getIV('content_iv'), $file->getIV('content_tag'));
-		$metadata_string = Encryption::decrypt(base64_decode($json['metadata']), $password, $file->getIV('metadata_iv'), $file->getIV('metadata_tag'));
+		$content = Encryption::decrypt($json['content'], $password, $file->getIV()[0], $file->getIV()[1]);
 
-		if ($content === FALSE) return FALSE;
-		if ($metadata_string === FALSE) return FALSE;
+		if ($content === FALSE) throw new \Exception("Could not decrypt content");;
+
+		$metadata_string = Encryption::decrypt(base64_decode($json['metadata']), $password, $file->getIV()[2], $file->getIV()[3], OPENSSL_RAW_DATA);
+
+		if ($metadata_string === FALSE) throw new \Exception("Could not decrypt metadata.");
 
 		$metadata_array = explode(' ', $metadata_string);
 		$metadata = ['name' => $metadata_array[0], 'size' => $metadata_array[1], 'type' => $metadata_array[2]];
