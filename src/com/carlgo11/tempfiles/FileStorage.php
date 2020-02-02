@@ -53,7 +53,7 @@ class FileStorage
 
 		$fileContent = Encryption::encryptFileContent($file->getContent(), $password);
 		$fileMetadata = Encryption::encryptFileDetails($file->getMetaData(), $file->getDeletionPassword(), 0, $file->getMaxViews(), $password);
-		$iv = [$fileContent['iv'], $fileContent['tag'], $fileMetadata['iv'], $fileMetadata['tag']];
+		$iv = [base64_encode($fileContent['iv']), base64_encode($fileContent['tag']), base64_encode($fileMetadata['iv']), base64_encode($fileMetadata['tag'])];
 		$date = new DateTime('+1 day');
 		$time = $date->getTimestamp();
 
@@ -62,7 +62,7 @@ class FileStorage
 		$content['iv'] = base64_encode(implode(' ', $iv));
 		$content['content'] = $fileContent['data'];
 
-		$txt = json_encode($content, JSON_PRETTY_PRINT);
+		$txt = json_encode($content, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 		fwrite($newFile, $txt);
 		fclose($newFile);
 	}
@@ -77,10 +77,10 @@ class FileStorage
 	public function getFile(string $id, string $password) {
 		global $conf;
 		$plaintext = file_get_contents($conf['file-path'] . $id);
-		$json = json_decode($plaintext, true);
+		$json = json_decode($plaintext, TRUE);
 		$file = new File(NULL);
 		$iv = base64_decode($json['iv']);
-		$iv_array = explode(" ", $iv);
+		$iv_array = explode(' ', $iv);
 		$file->setIV([
 			'content_iv' => base64_decode($iv_array[0]),
 			'content_tag' => base64_decode($iv_array[1]),
@@ -88,9 +88,10 @@ class FileStorage
 			'metadata_tag' => base64_decode($iv_array[3])
 		]);
 
-		$content = Encryption::decrypt(base64_decode($json['content']), $password, $file->getIV('content_iv'), $file->getIV('content_tag'));
+		$content = Encryption::decrypt($json['content'], $password, $file->getIV('content_iv'), $file->getIV('content_tag'));
 		$metadata_string = Encryption::decrypt(base64_decode($json['metadata']), $password, $file->getIV('metadata_iv'), $file->getIV('metadata_tag'));
 
+		if ($content === FALSE) return FALSE;
 		if ($metadata_string === FALSE) return FALSE;
 
 		$metadata_array = explode(' ', $metadata_string);

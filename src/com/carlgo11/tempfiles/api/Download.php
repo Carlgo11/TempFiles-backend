@@ -24,7 +24,7 @@ class Download extends API
 		$fileStorage = new FileStorage();
 		$file = $fileStorage->getFile($id, $p);
 
-		if (isset($file)) {
+		if (isset($file) && $file !== FALSE) {
 			$metadata = $file->getMetaData();
 			$content = base64_encode($file->getContent());
 			parent::addMessages([

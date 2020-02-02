@@ -169,7 +169,7 @@ class File
 	 * @since 2.2
 	 */
 	public function getMetaData(string $type = NULL) {
-		if ($type !== NULL) return $this->_metadata[$type];
+		if ($type != NULL) return $this->_metadata[$type];
 		return $this->_metaData;
 	}
 

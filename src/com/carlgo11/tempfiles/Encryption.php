@@ -57,8 +57,8 @@ class Encryption
 		$data_string = implode(" ", $data_array);
 
 		$data_enc = base64_encode(openssl_encrypt($data_string, $cipher, $password, OPENSSL_RAW_DATA, $iv, $tag));
-		if(Encryption::decrypt($data_enc, $password, $iv, $tag) !== FALSE)
-		return ['data' => $data_enc, 'iv' => $iv, 'tag' => $tag];
+		if (Encryption::decrypt($data_enc, $password, $iv, $tag) !== FALSE)
+			return ['data' => $data_enc, 'iv' => $iv, 'tag' => $tag];
 		else {
 			error_log("Decryption returned false");
 			return self::encryptFileDetails($file, $deletionpass, $currentViews, $maxViews, $password);
