@@ -1,7 +1,6 @@
 <?php
 
 namespace com\carlgo11\tempfiles\api;
-// Load resources
 
 use Exception;
 
@@ -20,7 +19,7 @@ try {
 			break;
 		case 'delete':
 			require_once __DIR__ . '/src/com/carlgo11/tempfiles/api/Delete.php';
-			new Delete($method);
+			new Delete();
 			break;
 		case 'download':
 			require_once __DIR__ . '/src/com/carlgo11/tempfiles/api/Download.php';
@@ -35,9 +34,8 @@ try {
 			break;
 	}
 } catch (Exception $ex) {
-//    error_log($ex); //Spews out the error to log. Maybe not so good for production env?
 	$api = new API();
-	$api->addMessage('success', false);
+	$api->addMessage('success', FALSE);
 	$api->addMessage('error', $ex->getMessage());
 	$api->outputJSON(500);
 }
