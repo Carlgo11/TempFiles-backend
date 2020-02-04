@@ -1,14 +1,5 @@
 <?php
 
-// Load resources.
-
-$conf = checkFile(__DIR__ . '/config.php');
-checkFile(__DIR__ . '/Encryption.php');
-checkFile(__DIR__ . '/Misc.php');
-checkFile(__DIR__ . '/File.php');
-checkFile(__DIR__ . '/API.php');
-checkFile(__DIR__ . '/FileStorage.php');
-
 /**
  * Checks if a file exists.
  * If it doesn't, the connection dies.
@@ -26,3 +17,18 @@ function checkFile(string $file) {
 		die("One or more core files can't be found on the server.");
 	}
 }
+
+function createDirectory($dir) {
+	if (!file_exists($dir)) mkdir($dir, 0700, TRUE);
+}
+
+// Load resources.
+$conf = checkFile(__DIR__ . '/config.php');
+
+checkFile(__DIR__ . '/Encryption.php');
+checkFile(__DIR__ . '/Misc.php');
+checkFile(__DIR__ . '/File.php');
+checkFile(__DIR__ . '/API.php');
+checkFile(__DIR__ . '/FileStorage.php');
+
+createDirectory($conf['file-path']);
