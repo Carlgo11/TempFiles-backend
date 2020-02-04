@@ -2,50 +2,65 @@
 
 namespace com\carlgo11\tempfiles;
 
+use com\carlgo11\tempfiles\api\Cleanup;
 use DateTime;
 use Exception;
 
+/**
+ * File storage class
+ *
+ * Handles the storage of uploaded file.
+ *
+ * @since 2.4
+ * @package com\carlgo11\tempfiles
+ */
 class FileStorage
 {
+
 	/**
-	 * Get File deletion time
+	 * Delete files older than 24 hours.
 	 *
-	 * @param string $id ID of the file.
-	 * @return false|string
+	 * @since 2.4
+	 * @see Cleanup
 	 */
-	public function getFileDeletionTime($id) {
+	public function deleteOldFiles() {
 		global $conf;
-		$file = fopen($conf['file-path'] . $id, "r");
-		$json = json_decode($file);
-		return base64_decode($json['time']);
+		$files = array_diff(scandir($conf['file-path']), ['.', '..']);
+
+		foreach ($files as $k => $id) {
+			$file = file_get_contents($conf['file-path'] . $id);
+			$json = json_decode($file, TRUE);
+			if (isset($json['time'])) {
+				$currentDate = new DateTime();
+				$time = date_create();
+				date_timestamp_set($time, (int)$json['time']);
+
+				if ($time->getTimestamp() < $currentDate->getTimestamp()) $this->deleteFile($id);
+			}
+		}
+		return TRUE;
 	}
 
+	/**
+	 * Delete a certain file
+	 *
+	 * @param $id File {@see File::getID() ID} of the file to delete.
+	 * @return true|false Returns true if successfully deleted, otherwise false.
+	 * @see FileStorage::deleteOldFiles()
+	 */
 	public function deleteFile($id) {
 		global $conf;
 		return unlink($conf['file-path'] . $id);
 	}
 
-	public function getFiles() {
-		global $conf;
-		$files = array_diff(scandir($conf['file-path']), ['.', '..']);
-
-		foreach ($files as $file) {
-			$file = fopen($file, "r");
-			$json = json_decode($file);
-		}
-
-		if (!isNull(NULL)) {
-			$json['time'];
-		}
-	}
-
 	/**
 	 * Save file to storage.
 	 *
-	 * @param File $file
-	 * @param string $password
-	 * @return bool
+	 * @param File $file {@see File File} object to upload
+	 * @param string $password Encryption password
+	 * @return true|false Returns true if successful, otherwise false.
 	 * @throws Exception
+	 * @since 2.4
 	 */
 	public function saveFile(File $file, string $password) {
 		global $conf;
@@ -71,9 +86,10 @@ class FileStorage
 	/**
 	 * Get File from storage
 	 *
-	 * @param string $id ID of the file.
+	 * @param string $id {@see File::getID() ID} of the file.
 	 * @param string $password Password of the file.
-	 * @return False|File Returns the saved file as a File object.
+	 * @return False|File Returns the saved file as a {@see File File} object.
+	 * @throws Exception
 	 */
 	public function getFile(string $id, string $password) {
 		global $conf;
@@ -86,11 +102,11 @@ class FileStorage
 
 		$content = Encryption::decrypt($json['content'], $password, $file->getIV()[0], $file->getIV()[1]);
 
-		if ($content === FALSE) throw new \Exception("Could not decrypt content");;
+		if ($content === FALSE) throw new Exception("Could not decrypt content");
 
 		$metadata_string = Encryption::decrypt(base64_decode($json['metadata']), $password, $file->getIV()[2], $file->getIV()[3], OPENSSL_RAW_DATA);
 
-		if ($metadata_string === FALSE) throw new \Exception("Could not decrypt metadata.");
+		if ($metadata_string === FALSE) throw new Exception("Could not decrypt metadata.");
 
 		$metadata_array = explode(' ', $metadata_string);
 		$metadata = ['name' => $metadata_array[0], 'size' => $metadata_array[1], 'type' => $metadata_array[2]];

@@ -9,6 +9,7 @@ use Exception;
 
 class Upload extends API
 {
+
 	/**
 	 * Upload constructor.
 	 *

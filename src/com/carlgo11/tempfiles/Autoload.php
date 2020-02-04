@@ -9,7 +9,6 @@ checkFile(__DIR__ . '/File.php');
 checkFile(__DIR__ . '/API.php');
 checkFile(__DIR__ . '/FileStorage.php');
 
-
 /**
  * Checks if a file exists.
  * If it doesn't, the connection dies.

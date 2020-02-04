@@ -9,6 +9,11 @@ use Exception;
 class Delete extends API
 {
 
+	/**
+	 * Delete constructor.
+	 *
+	 * @throws Exception
+	 */
 	public function __construct() {
 		$id = Misc::getVar('id');
 		$password = Misc::getVar('p');
