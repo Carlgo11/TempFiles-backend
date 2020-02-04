@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 
 class FileStorageTest extends TestCase
 {
-//
+
 //	public function testGetFile() {
 //
 //	}
@@ -16,10 +16,6 @@ class FileStorageTest extends TestCase
 //	}
 //
 //	public function testDeleteFile() {
-//
-//	}
-//
-//	public function testGetFiles() {
 //
 //	}
 

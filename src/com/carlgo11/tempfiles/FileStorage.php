@@ -7,7 +7,7 @@ use DateTime;
 use Exception;
 
 /**
- * File storage class
+ * <b>File storage class</b>
  *
  * Handles the storage of uploaded file.
  *
@@ -47,6 +47,7 @@ class FileStorage
 	 * @param $id File {@see File::getID() ID} of the file to delete.
 	 * @return true|false Returns true if successfully deleted, otherwise false.
 	 * @see FileStorage::deleteOldFiles()
+	 * @since 2.4
 	 */
 	public function deleteFile($id) {
 		global $conf;
@@ -65,7 +66,7 @@ class FileStorage
 	public function saveFile(File $file, string $password) {
 		global $conf;
 		$content = [];
-		$newFile = fopen($conf['file-path'] . $file->getID(), "w");
+		$newFile = fopen($conf['file-path'] . $file, "w");
 
 		$fileContent = Encryption::encryptFileContent($file->getContent(), $password);
 		$fileMetadata = Encryption::encryptFileDetails($file->getMetaData(), $file->getDeletionPassword(), 0, $file->getMaxViews(), $password);
@@ -90,6 +91,8 @@ class FileStorage
 	 * @param string $password Password of the file.
 	 * @return False|File Returns the saved file as a {@see File File} object.
 	 * @throws Exception
+	 * @codeCoverageIgnore
+	 * @since 2.4
 	 */
 	public function getFile(string $id, string $password) {
 		global $conf;

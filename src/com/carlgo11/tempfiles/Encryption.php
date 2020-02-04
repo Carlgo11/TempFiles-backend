@@ -10,22 +10,36 @@ class Encryption
 {
 
 	/**
-	 * Decrypts data.
+	 * Encrypts and encodes the content (data) of a file.
 	 *
-	 * @param string $data Data to decrypt.
-	 * @param string $password Password used to decrypt.
-	 * @param string $iv IV for decryption.
-	 * @param string $tag AEAD tag from the data encryption.
-	 * @param string $options OPENSSL options.
-	 * @return string Returns decrypted data.
-	 * @global array $conf Configuration variables.
+	 * @param string $content Data to encrypt.
+	 * @param string $password Password used to encrypt data.
+	 * @return array Returns encoded and encrypted file content.
 	 * @since 2.0
 	 * @since 2.3 Added support for AEAD cipher modes.
 	 * @global array $conf Configuration variables.
 	 */
-	public static function decrypt(string $data, string $password, string $iv, string $tag = NULL, $options = NULL) {
+	public static function encryptFileContent(string $content, string $password) {
 		global $conf;
-		return openssl_decrypt($data, $conf['Encryption-Method'], $password, $options, $iv, $tag);
+		$cipher = $conf['Encryption-Method'];
+		$iv = self::getIV($cipher);
+
+		$data = base64_encode(openssl_encrypt($content, $cipher, $password, OPENSSL_RAW_DATA, $iv, $tag));
+		return ['data' => $data, 'iv' => $iv, 'tag' => $tag];
+	}
+
+	/**
+	 * Create an IV (Initialization Vector) string.
+	 * IV contains of random data from a "random" source. In this case the source is OPENSSL.
+	 *
+	 * @param string $cipher Encryption method to use.
+	 * @return string Returns an IV string encoded with base64.
+	 * @since 2.0
+	 * @since 2.3 Added support for variable IV length.
+	 */
+	public static function getIV(string $cipher) {
+		$ivLength = openssl_cipher_iv_length($cipher);
+		return mb_strcut(base64_encode(openssl_random_pseudo_bytes($ivLength)), 0, $ivLength);
 	}
 
 	/**
@@ -63,41 +77,27 @@ class Encryption
 			return ['data' => $data_enc, 'iv' => $iv, 'tag' => $tag];
 		else {
 			error_log("Decryption returned false");
-			return false;
+			return FALSE;
 		}
 	}
 
 	/**
-	 * Create an IV (Initialization Vector) string.
-	 * IV contains of random data from a "random" source. In this case the source is OPENSSL.
+	 * Decrypts data.
 	 *
-	 * @param string $cipher Encryption method to use.
-	 * @return string Returns an IV string encoded with base64.
-	 * @since 2.0
-	 * @since 2.3 Added support for variable IV length.
-	 */
-	public static function getIV(string $cipher) {
-		$ivLength = openssl_cipher_iv_length($cipher);
-		return mb_strcut(base64_encode(openssl_random_pseudo_bytes($ivLength)), 0, $ivLength);
-	}
-
-	/**
-	 * Encrypts and encodes the content (data) of a file.
-	 *
-	 * @param string $content Data to encrypt.
-	 * @param string $password Password used to encrypt data.
-	 * @return array Returns encoded and encrypted file content.
+	 * @param string $data Data to decrypt.
+	 * @param string $password Password used to decrypt.
+	 * @param string $iv IV for decryption.
+	 * @param string $tag AEAD tag from the data encryption.
+	 * @param string $options OPENSSL options.
+	 * @return string Returns decrypted data.
+	 * @global array $conf Configuration variables.
 	 * @since 2.0
 	 * @since 2.3 Added support for AEAD cipher modes.
+	 * @since 2.4 Added ability to specify OPENSSL options.
 	 * @global array $conf Configuration variables.
 	 */
-	public static function encryptFileContent(string $content, string $password) {
+	public static function decrypt(string $data, string $password, string $iv, string $tag = NULL, $options = NULL) {
 		global $conf;
-		$cipher = $conf['Encryption-Method'];
-		$iv = self::getIV($cipher);
-
-		$data = base64_encode(openssl_encrypt($content, $cipher, $password, OPENSSL_RAW_DATA, $iv, $tag));
-		return ['data' => $data, 'iv' => $iv, 'tag' => $tag];
+		return openssl_decrypt($data, $conf['Encryption-Method'], $password, $options, $iv, $tag);
 	}
-
 }

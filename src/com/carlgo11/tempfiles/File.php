@@ -16,7 +16,7 @@ class File
 	/**
 	 * Main function of File class.
 	 *
-	 * @param array $file $_FILES array if available.
+	 * @param array $file {@link https://www.php.net/manual/en/reserved.variables.files.php $_FILES} array if available.
 	 * @param string $id ID if one is already set.
 	 * @since 2.2
 	 */
@@ -25,7 +25,7 @@ class File
 		else $this->setID($id);
 
 		if ($file !== NULL)
-			$this->_metadata = ['name' => $file['name'], 'size' => $file['size'], 'type' => $file['type']];
+			$this->_metaData = ['name' => $file['name'], 'size' => $file['size'], 'type' => $file['type']];
 	}
 
 	/**
@@ -106,6 +106,7 @@ class File
 	 * @param int $views New views/downloads of the file.
 	 * @return boolean Returns TRUE if the action was successfully executed. Returns FALSE if the file was deleted. Returns NULL if currentsViews wasn't set.
 	 * @since 2.2
+	 * @since 2.4 Switched from deleteFile() in DataStorage to FileStorage.
 	 */
 	public function setCurrentViews(int $views) {
 		if ($this->_maxViews != 0) {
@@ -113,16 +114,18 @@ class File
 				$this->_currentViews = $views;
 				return TRUE;
 			} else if ($views >= $this->_maxViews) {
-				DataStorage::deleteFile($this->_id);
-				return FALSE;
+				$fileStorage = new FileStorage();
+				$fileStorage->deleteFile($this->_id);
+				unset($fileStorage);
 			}
 		}
+		return FALSE;
 	}
 
 	/**
 	 * Gets the max available views/downloads before the file gets deleted.
 	 *
-	 * @return mixed Returns max views of the file if supplied, otherwise NULL.
+	 * @return int|null Returns max views of the file if supplied, otherwise NULL.
 	 * @since 2.2
 	 */
 	public function getMaxViews() {
@@ -165,11 +168,11 @@ class File
 	 * Gets the metadata of the file if supplied.
 	 *
 	 * @param string $type Array key of the desired value.
-	 * @return mixed Returns data of the desired array key if a $type is supplied, otherwise the entire array.
+	 * @return string|array Returns data of the desired array key if a $type is supplied, otherwise the entire array.
 	 * @since 2.2
 	 */
 	public function getMetaData(string $type = NULL) {
-		if ($type != NULL) return $this->_metadata[$type];
+		if ($type != NULL) return $this->_metaData[$type];
 		return $this->_metaData;
 	}
 
@@ -185,7 +188,7 @@ class File
 	}
 
 	public function getIV() {
-			return $this->_iv;
+		return $this->_iv;
 	}
 
 	public function setIV(array $iv) {

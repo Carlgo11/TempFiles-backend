@@ -37,6 +37,7 @@ class Download extends API
 			parent::outputJSON(200);
 
 			if ($file->setCurrentViews(($file->getCurrentViews() + 1)))
+				/* @TODO: Change to FileStorage */
 				DataStorage::setViews($file->getMaxViews(), ($file->getCurrentViews() + 1), $file, $p);
 
 		} else

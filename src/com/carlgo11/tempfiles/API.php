@@ -11,8 +11,7 @@ class API
 
 	/**
 	 * @param array $messages
-	 * @return bool
-	 * @deprecated Use API::addMessage() instead.
+	 * @return bool Returns true if successful, otherwise false.
 	 */
 	public function addMessages(array $messages) {
 		return ($this->_messages = array_merge($this->_messages, $messages)) !== NULL;
