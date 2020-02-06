@@ -4,6 +4,7 @@ namespace com\carlgo11\tempfiles;
 /**
  * Miscellaneous functions
  *
+ * @package com\carlgo11\tempfiles
  * @since 2.0
  */
 class Misc

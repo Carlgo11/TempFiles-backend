@@ -36,11 +36,7 @@ class Download extends API
 			]);
 			parent::outputJSON(200);
 
-			if ($file->setCurrentViews(($file->getCurrentViews() + 1)))
-				/* @TODO: Change to FileStorage */
-				DataStorage::setViews($file->getMaxViews(), ($file->getCurrentViews() + 1), $file, $p);
-
-		} else
-			throw new Exception("File not found");
+			if ($file->setCurrentViews(($file->getCurrentViews() + 1))) $fileStorage->setViews($file, ($file->getCurrentViews() + 1), $p);
+		} else throw new Exception("File not found");
 	}
 }

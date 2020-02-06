@@ -1,4 +1,12 @@
 <?php
+/**
+ * File storage class
+ *
+ * Handles the storage of uploaded file.
+ *
+ * @since 2.4
+ * @package com\carlgo11\tempfiles
+ */
 
 namespace com\carlgo11\tempfiles;
 
@@ -7,7 +15,7 @@ use DateTime;
 use Exception;
 
 /**
- * <b>File storage class</b>
+ * File storage class
  *
  * Handles the storage of uploaded file.
  *
@@ -18,10 +26,40 @@ class FileStorage
 {
 
 	/**
+	 * Set current views for a file.
+	 *
+	 * @param File $file {@see File File} to change.
+	 * @param int $newViews New current views.
+	 * @param string $password
+	 * @return bool Returns true if change was successful, otherwise FALSE.
+	 * @throws Exception Throws exception if the file can't be found.
+	 * @since 2.4
+	 * @see File::setCurrentViews()
+	 */
+	public function setViews(File $file, int $newViews, string $password) {
+		global $conf;
+		$plaintext = file_get_contents($conf['file-path'] . $file->getID());
+		$newFile = fopen($conf['file-path'] . $file, "w");
+		$json = json_decode($plaintext, TRUE);
+		$metadata = Encryption::encryptFileDetails($file->getMetaData(), $file->getDeletionPassword(), $newViews, $file->getMaxViews(), $password);
+		$fileContent = Encryption::encryptFileContent($file->getContent(), $password);
+		$iv = [$fileContent['iv'], $fileContent['tag'], $metadata['iv'], $metadata['tag']];
+
+		$json['time'] = $file->getDateTime();
+		$json['iv'] = base64_encode(implode(' ', $iv));
+		$json['metadata'] = $metadata['data'];
+		$json['content'] = $fileContent['data'];
+
+		$txt = json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+		fwrite($newFile, $txt);
+		return fclose($newFile);
+	}
+
+	/**
 	 * Delete files older than 24 hours.
 	 *
-	 * @since 2.4
 	 * @see Cleanup
+	 * @since 2.4
 	 */
 	public function deleteOldFiles() {
 		global $conf;
@@ -30,21 +68,35 @@ class FileStorage
 		foreach ($files as $k => $id) {
 			$file = file_get_contents($conf['file-path'] . $id);
 			$json = json_decode($file, TRUE);
-			if (isset($json['time'])) {
-				$currentDate = new DateTime();
-				$time = date_create();
-				date_timestamp_set($time, (int)$json['time']);
-
-				if ($time->getTimestamp() < $currentDate->getTimestamp()) $this->deleteFile($id);
-			}
+			if (isset($json['time']))
+				if ($this->compareTimes($json['time'])) $this->deleteFile($id);
 		}
 		return TRUE;
 	}
 
 	/**
+	 * Compare deletion time with current time.
+	 *
+	 * @param int $time Deletion time passed as a UNIX timestamp.
+	 * @return true|false Returns TRUE if the file is older than it's supposed deletion time. Otherwise FALSE.
+	 * @since 2.4
+	 */
+	private function compareTimes(int $time) {
+		try {
+			$currentTime = new DateTime();
+			$input = date_create();
+
+			date_timestamp_set($input, $time);
+		} catch (Exception $ex) {
+			return FALSE;
+		}
+		return $input->getTimestamp() < $currentTime->getTimestamp();
+	}
+
+	/**
 	 * Delete a certain file
 	 *
-	 * @param $id File {@see File::getID() ID} of the file to delete.
+	 * @param String $id {@see File::getID() ID} of the file to delete.
 	 * @return true|false Returns true if successfully deleted, otherwise false.
 	 * @see FileStorage::deleteOldFiles()
 	 * @since 2.4
@@ -68,8 +120,12 @@ class FileStorage
 		$content = [];
 		$newFile = fopen($conf['file-path'] . $file, "w");
 
+		$maxViews = $file->getMaxViews();
+		if ($maxViews === NULL) $maxViews = 0;
+
 		$fileContent = Encryption::encryptFileContent($file->getContent(), $password);
-		$fileMetadata = Encryption::encryptFileDetails($file->getMetaData(), $file->getDeletionPassword(), 0, $file->getMaxViews(), $password);
+		$fileMetadata = Encryption::encryptFileDetails($file->getMetaData(), $file->getDeletionPassword(), 0, $maxViews, $password);
+
 		$iv = [$fileContent['iv'], $fileContent['tag'], $fileMetadata['iv'], $fileMetadata['tag']];
 		$date = new DateTime('+1 day');
 		$time = $date->getTimestamp();
@@ -98,12 +154,12 @@ class FileStorage
 		global $conf;
 		$plaintext = file_get_contents($conf['file-path'] . $id);
 		$json = json_decode($plaintext, TRUE);
-		$file = new File(NULL);
+		$file = new File(NULL, $id);
 		$iv = base64_decode($json['iv']);
 		$iv_array = explode(' ', $iv);
 		$file->setIV($iv_array);
 
-		$content = Encryption::decrypt($json['content'], $password, $file->getIV()[0], $file->getIV()[1]);
+		$content = Encryption::decrypt($json['content'], $password, $file->getIV()[0], $file->getIV()[1], NULL);
 
 		if ($content === FALSE) throw new Exception("Could not decrypt content");
 
@@ -114,12 +170,20 @@ class FileStorage
 		$metadata_array = explode(' ', $metadata_string);
 		$metadata = ['name' => $metadata_array[0], 'size' => $metadata_array[1], 'type' => $metadata_array[2]];
 		$views_array = explode(' ', base64_decode($metadata_array[4]));
+		$time = date_create();
+		date_timestamp_set($time, (int)$json['time']);
+
+		if ($this->compareTimes($json['time'])) {
+			$this->deleteFile($id);
+			return FALSE;
+		}
 
 		$file->setContent($content);
 		$file->setMetaData($metadata);
 		$file->setCurrentViews((int)$views_array[0]);
 		$file->setMaxViews((int)$views_array[1]);
 		$file->setDeletionPassword(base64_decode($metadata_array[3]));
+		$file->setDateTime($time);
 
 		return $file;
 	}

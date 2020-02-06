@@ -2,6 +2,14 @@
 
 namespace com\carlgo11\tempfiles;
 
+use DateTime;
+
+/**
+ * File class
+ *
+ * @package com\carlgo11\tempfiles
+ * @since 2.2
+ */
 class File
 {
 
@@ -12,6 +20,7 @@ class File
 	protected $_deletionPassword;
 	protected $_metaData;
 	protected $_iv;
+	protected $_time;
 
 	/**
 	 * Main function of File class.
@@ -195,4 +204,24 @@ class File
 		return ($this->_iv = $iv) === $iv;
 	}
 
+	/**
+	 * Set deletion date & time.
+	 *
+	 * @param DateTime $time New DateTime.
+	 * @return boolean Returns TRUE if the action was successful, otherwise FALSE.
+	 * @since 2.4
+	 */
+	public function setDateTime(DateTime $time) {
+		return ($this->_time = $time) === $time && !NULL;
+	}
+
+	/**
+	 * Get deletion date & time.
+	 *
+	 * @return DateTime|null Returns the time of which the file will be removed if one is set.
+	 * @since 2.4
+	 */
+	public function getDateTime() {
+		return $this->_time;
+	}
 }

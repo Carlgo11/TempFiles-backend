@@ -56,7 +56,7 @@ class Encryption
 	 * @since 2.3 Added support for AEAD cipher modes.
 	 * @global array $conf Configuration variables.
 	 */
-	public static function encryptFileDetails(array $file, string $deletionpass, int $currentViews, $maxViews, string $password) {
+	public static function encryptFileDetails(array $file, string $deletionpass, int $currentViews, int $maxViews, string $password) {
 		global $conf;
 		$cipher = $conf['Encryption-Method'];
 		$iv = self::getIV($cipher);

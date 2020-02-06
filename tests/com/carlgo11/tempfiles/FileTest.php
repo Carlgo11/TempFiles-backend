@@ -36,12 +36,12 @@ class FileTest extends TestCase
         $this->assertEquals($content, $this->_file->getContent());
     }
 
-    public function testCurrentViews() {
-        $currentViews = 0;
-        // FALSE = views have exceeded max views and file should be deleted.
-        $this->assertNotFalse($this->_file->setCurrentViews($currentViews));
-        $this->assertEquals($currentViews, $this->_file->getCurrentViews());
-    }
+//    public function testCurrentViews() {
+//        $currentViews = 0;
+//        // FALSE = views have exceeded max views and file should be deleted.
+//        $this->assertNotFalse($this->_file->setCurrentViews($currentViews));
+//        $this->assertEquals($currentViews, $this->_file->getCurrentViews());
+//    }
 
 
 //    public function testMetaData() {

@@ -7,18 +7,6 @@ use PHPUnit\Framework\TestCase;
 class FileStorageTest extends TestCase
 {
 
-//	public function testGetFile() {
-//
-//	}
-//
-//	public function testGetFileDeletionTime() {
-//
-//	}
-//
-//	public function testDeleteFile() {
-//
-//	}
-
 	public function testSaveFile() {
 		$fileContent = [
 			"name" => "README.md",
@@ -54,5 +42,6 @@ class FileStorageTest extends TestCase
 			$this->assertEquals($metadata[$k], $fetched_metadata[$k]);
 		}
 	}
+
 
 }
