@@ -36,7 +36,7 @@ class Upload extends API
 
 			$metadata = [
 				'size' => $fileContent['size'],
-				'name' => $fileContent['name'],
+				'name' => rawurlencode($fileContent['name']),
 				'type' => $fileContent['type']
 			];
 
