@@ -152,7 +152,7 @@ class FileStorage
 	 */
 	public function getFile(string $id, string $password) {
 		global $conf;
-		$plaintext = file_get_contents($conf['file-path'] . $id);
+		$plaintext = file_get_contents($conf['file-path'] . strtoupper($id));
 		$json = json_decode($plaintext, TRUE);
 		$file = new File(NULL, $id);
 		$iv = base64_decode($json['iv']);
