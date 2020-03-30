@@ -190,11 +190,12 @@ class File
 	 *
 	 * @param array New metadata of the file.
 	 * @return boolean Returns TRUE if the action was successfully executed, otherwise FALSE.
+	 * @throws \Exception Throws exception if size isn't a number.
 	 * @since 2.2
 	 */
 	public function setMetaData(array $metadata) {
 		if(!filter_var($metadata['size'], FILTER_VALIDATE_INT, ['min_range' => 0]))
-			throw new Exception("File size isn't a number.");
+			throw new \Exception("File size isn't a number.");
 		else $newMetaData['size'] = $metadata['size'];
 
 		$newMetaData['name'] = filter_var($metadata['name'], FILTER_SANITIZE_STRING);
