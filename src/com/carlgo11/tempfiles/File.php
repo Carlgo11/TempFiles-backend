@@ -193,7 +193,15 @@ class File
 	 * @since 2.2
 	 */
 	public function setMetaData(array $metadata) {
-		return ($this->_metaData = $metadata) === $metadata;
+		if(!filter_var($metadata['size'], FILTER_VALIDATE_INT, ['min_range' => 0]))
+			throw new Exception("File size isn't a number.");
+		else $newMetaData['size'] = $metadata['size'];
+
+		$newMetaData['name'] = filter_var($metadata['name'], FILTER_SANITIZE_STRING);
+
+		$newMetaData['type'] = filter_var($metadata['type'], FILTER_SANITIZE_STRING);
+
+		return ($this->_metaData = $newMetaData) === $newMetaData;
 	}
 
 	public function getIV() {

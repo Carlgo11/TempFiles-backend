@@ -61,16 +61,16 @@ class Encryption
 		$cipher = $conf['Encryption-Method'];
 		$iv = self::getIV($cipher);
 
-		$deletionpass = password_hash($deletionpass, PASSWORD_BCRYPT);
+		$deletionPass = password_hash($deletionpass, PASSWORD_BCRYPT);
 		$views_string = base64_encode(implode(' ', [$currentViews, $maxViews]));
 		$data_array = [
-			$file['name'],
-			$file['size'],
-			$file['type'],
-			$deletionpass,
+			base64_encode($file['name']),
+			base64_encode($file['size']),
+			base64_encode($file['type']),
+			$deletionPass,
 			$views_string
 		];
-		$data_string = implode(" ", $data_array);
+		$data_string = implode(";", $data_array);
 
 		$data_enc = base64_encode(openssl_encrypt($data_string, $cipher, $password, OPENSSL_RAW_DATA, $iv, $tag));
 		if (Encryption::decrypt(base64_decode($data_enc), $password, $iv, $tag, OPENSSL_RAW_DATA) != FALSE)

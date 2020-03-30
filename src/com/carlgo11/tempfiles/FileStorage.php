@@ -167,8 +167,8 @@ class FileStorage
 
 		if ($metadata_string === FALSE) throw new Exception("Could not decrypt metadata.");
 
-		$metadata_array = explode(' ', $metadata_string);
-		$metadata = ['name' => $metadata_array[0], 'size' => $metadata_array[1], 'type' => $metadata_array[2]];
+		$metadata_array = explode(';', $metadata_string);
+		$metadata = ['name' => base64_decode($metadata_array[0]), 'size' => base64_decode($metadata_array[1]), 'type' => base64_decode($metadata_array[2])];
 		$views_array = explode(' ', base64_decode($metadata_array[4]));
 		$time = date_create();
 		date_timestamp_set($time, (int)$json['time']);
