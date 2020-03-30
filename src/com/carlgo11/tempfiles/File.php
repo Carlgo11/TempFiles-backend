@@ -195,7 +195,7 @@ class File
 	 */
 	public function setMetaData(array $metadata) {
 		if(!filter_var($metadata['size'], FILTER_VALIDATE_INT, ['min_range' => 0]))
-			throw new \Exception("File size isn't a number.");
+			throw new \Exception("File size ".$metadata['size']." isn't a number.");
 		else $newMetaData['size'] = $metadata['size'];
 
 		$newMetaData['name'] = filter_var($metadata['name'], FILTER_SANITIZE_STRING);

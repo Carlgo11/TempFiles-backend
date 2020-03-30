@@ -98,6 +98,11 @@ class Encryption
 	 */
 	public static function decrypt(string $data, string $password, string $iv, string $tag = NULL, $options = NULL) {
 		global $conf;
-		return openssl_decrypt($data, $conf['Encryption-Method'], $password, $options, $iv, $tag);
+		$data = openssl_decrypt($data, $conf['Encryption-Method'], $password, $options, $iv, $tag);
+		if(is_bool($data)){
+			return false;
+		}else{
+			return $data;
+		}
 	}
 }

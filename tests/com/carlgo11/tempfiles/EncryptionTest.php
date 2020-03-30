@@ -47,15 +47,15 @@ class EncryptionTest extends TestCase
         $this->assertIsString($encrypted['iv']);
         $this->assertIsString($encrypted['tag']);
 
-        $decrypted = explode(" ", Encryption::decrypt(base64_decode($encrypted['data']), $password, $encrypted['iv'], $encrypted['tag'], OPENSSL_RAW_DATA));
+        $decrypted = explode(";", Encryption::decrypt(base64_decode($encrypted['data']), $password, $encrypted['iv'], $encrypted['tag'], OPENSSL_RAW_DATA));
 
         // Test $decrypted output
         $this->assertIsArray($decrypted);
 
         // Test content of $decrypted
-        $this->assertEquals($file['name'], $decrypted[0]);
-        $this->assertEquals($file['size'], $decrypted[1]);
-        $this->assertEquals($file['type'], $decrypted[2]);
+        $this->assertEquals($file['name'], base64_decode($decrypted[0]));
+        $this->assertEquals($file['size'], base64_decode($decrypted[1]));
+        $this->assertEquals($file['type'], base64_decode($decrypted[2]));
         $this->assertTrue(password_verify($delpass, $decrypted[3]));
 
         $views = explode(" ", base64_decode($decrypted[4]));

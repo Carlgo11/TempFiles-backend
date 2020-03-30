@@ -11,7 +11,7 @@ class FileStorageTest extends TestCase
 		$fileContent = [
 			"name" => "README.md",
 			"tmp_name" => __DIR__ . '/../../../../README.md',
-			"size" => 0,
+			"size" => 10,
 			"type" => "text/markdown",
 			"error" => 0
 		];
