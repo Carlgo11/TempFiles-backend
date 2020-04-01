@@ -3,6 +3,7 @@
 namespace com\carlgo11\tempfiles;
 
 use DateTime;
+use Exception;
 
 /**
  * File class
@@ -165,12 +166,12 @@ class File
 	/**
 	 * Sets the deletion password of the file.
 	 *
-	 * @param string $deletionpassword New deletion password of the file.
+	 * @param string $deletionPassword New deletion password of the file.
 	 * @return boolean Returns TRUE if the action was successfully executed, otherwise FALSE.
 	 * @since 2.2
 	 */
-	public function setDeletionPassword(string $deletionpassword) {
-		return ($this->_deletionPassword = $deletionpassword) === $deletionpassword;
+	public function setDeletionPassword(string $deletionPassword) {
+		return ($this->_deletionPassword = $deletionPassword) === $deletionPassword;
 	}
 
 	/**
@@ -190,17 +191,17 @@ class File
 	 *
 	 * @param array New metadata of the file.
 	 * @return boolean Returns TRUE if the action was successfully executed, otherwise FALSE.
-	 * @throws \Exception Throws exception if size isn't a number.
+	 * @throws Exception Throws exception if size isn't a number.
 	 * @since 2.2
 	 */
-	public function setMetaData(array $metadata) {
-		if(!filter_var($metadata['size'], FILTER_VALIDATE_INT, ['min_range' => 0]))
-			throw new \Exception("File size ".$metadata['size']." isn't a number.");
-		else $newMetaData['size'] = $metadata['size'];
+	public function setMetaData(array $metaData) {
+		if (!filter_var($metaData['size'], FILTER_VALIDATE_INT, ['min_range' => 0]))
+			throw new Exception("File size " . $metaData['size'] . " isn't a number.");
+		else $newMetaData['size'] = $metaData['size'];
 
-		$newMetaData['name'] = filter_var($metadata['name'], FILTER_SANITIZE_STRING);
+		$newMetaData['name'] = filter_var($metaData['name'], FILTER_SANITIZE_STRING);
 
-		$newMetaData['type'] = filter_var($metadata['type'], FILTER_SANITIZE_STRING);
+		$newMetaData['type'] = filter_var($metaData['type'], FILTER_SANITIZE_STRING);
 
 		return ($this->_metaData = $newMetaData) === $newMetaData;
 	}

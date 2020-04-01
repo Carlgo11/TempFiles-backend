@@ -11,7 +11,7 @@
 
 ## Reporting a Vulnerability
 
-TempFiles take security seriously. If you find a potential security vulnerbility please first contact us privetly before disclosing it publicly.
+TempFiles take security seriously. If you find a potential security vulnerability please first contact us privetly before disclosing it publicly.
 That way we can ensure that the user impact is as small as possible.
 
 Here are some ways you can contact me:

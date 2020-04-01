@@ -47,6 +47,7 @@ class Misc
 	 * @return int Output of $from in bytes.
 	 * @author John V.
 	 * @link http://stackoverflow.com/a/11807179
+	 * @deprecated Deprecated since 2.4
 	 */
 	public static function convertToBytes($from) {
 		$number = substr($from, 0, -2);

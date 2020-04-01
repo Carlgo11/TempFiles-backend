@@ -70,5 +70,6 @@ class Upload extends API
 			parent::addMessages($output);
 			return parent::outputJSON(201);
 		}
+		return TRUE;
 	}
 }
