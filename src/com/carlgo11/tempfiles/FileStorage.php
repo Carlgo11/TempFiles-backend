@@ -157,6 +157,7 @@ class FileStorage
 		$file = new File(NULL, $id);
 		$iv = base64_decode($json['iv']);
 		$iv_array = explode(' ', $iv);
+//		var_dump($iv_array);
 		$file->setIV($iv_array);
 
 		$content = Encryption::decrypt($json['content'], $password, $file->getIV()[0], $file->getIV()[1], NULL);
@@ -169,6 +170,7 @@ class FileStorage
 
 		$metadata_array = explode(';', $metadata_string);
 		$metadata = ['name' => base64_decode($metadata_array[0]), 'size' => base64_decode($metadata_array[1]), 'type' => base64_decode($metadata_array[2])];
+
 		$views_array = explode(' ', base64_decode($metadata_array[4]));
 		$time = date_create();
 		date_timestamp_set($time, (int)$json['time']);

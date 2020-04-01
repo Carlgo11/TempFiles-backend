@@ -25,7 +25,12 @@ class Encryption
 		$iv = self::getIV($cipher);
 
 		$data = base64_encode(openssl_encrypt($content, $cipher, $password, OPENSSL_RAW_DATA, $iv, $tag));
-		return ['data' => $data, 'iv' => $iv, 'tag' => $tag];
+/*		echo "Encryption: ";
+		var_dump($cipher);
+		var_dump(bin2hex($tag));
+		var_dump(bin2hex($iv));
+		echo "\n";*/
+		return ['data' => $data, 'iv' => bin2hex($iv), 'tag' => bin2hex($tag)];
 	}
 
 	/**
@@ -34,12 +39,13 @@ class Encryption
 	 *
 	 * @param string $cipher Encryption method to use.
 	 * @return string Returns an IV string encoded with base64.
-	 * @since 2.0
+	 * @throws \Exception
 	 * @since 2.3 Added support for variable IV length.
+	 * @since 2.0
 	 */
 	public static function getIV(string $cipher) {
 		$ivLength = openssl_cipher_iv_length($cipher);
-		return mb_strcut(base64_encode(openssl_random_pseudo_bytes($ivLength)), 0, $ivLength);
+		return random_bytes($ivLength);
 	}
 
 	/**
@@ -61,7 +67,7 @@ class Encryption
 		$cipher = $conf['Encryption-Method'];
 		$iv = self::getIV($cipher);
 
-		$deletionPass = password_hash($deletionpass, PASSWORD_BCRYPT);
+		$deletionPass = base64_encode(password_hash($deletionpass, PASSWORD_BCRYPT));
 		$views_string = base64_encode(implode(' ', [$currentViews, $maxViews]));
 		$data_array = [
 			base64_encode($file['name']),
@@ -73,8 +79,13 @@ class Encryption
 		$data_string = implode(";", $data_array);
 
 		$data_enc = base64_encode(openssl_encrypt($data_string, $cipher, $password, OPENSSL_RAW_DATA, $iv, $tag));
-		if (Encryption::decrypt(base64_decode($data_enc), $password, $iv, $tag, OPENSSL_RAW_DATA) != FALSE)
-			return ['data' => $data_enc, 'iv' => $iv, 'tag' => $tag];
+/*		echo "Encryption: ";
+		var_dump($cipher);
+		var_dump(bin2hex($tag));
+		var_dump(bin2hex($iv));
+		echo "\n";*/
+		if (Encryption::decrypt(base64_decode($data_enc), $password, bin2hex($iv), bin2hex($tag), OPENSSL_RAW_DATA) != FALSE)
+			return ['data' => $data_enc, 'iv' => bin2hex($iv), 'tag' => bin2hex($tag)];
 		else {
 			error_log("Decryption returned false");
 			return FALSE;
@@ -98,8 +109,13 @@ class Encryption
 	 */
 	public static function decrypt(string $data, string $password, string $iv, string $tag = NULL, $options = NULL) {
 		global $conf;
-		$data = openssl_decrypt($data, $conf['Encryption-Method'], $password, $options, $iv, $tag);
+		$data = openssl_decrypt($data, $conf['Encryption-Method'], $password, $options, hex2bin($iv), hex2bin($tag));
 		if(is_bool($data)){
+/*			echo "Decryption:";
+			var_dump(openssl_error_string());
+			var_dump(bin2hex($tag));
+			var_dump(bin2hex($iv));
+			echo "\n";*/
 			return false;
 		}else{
 			return $data;
