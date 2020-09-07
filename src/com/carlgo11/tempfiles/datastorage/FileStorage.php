@@ -3,11 +3,12 @@
 namespace com\carlgo11\tempfiles\datastorage;
 
 use com\carlgo11\tempfiles\EncryptedFile;
+use DateTime;
 use Exception;
 
-class FileStorage implements DataInterface
-{
-	protected $_id;
+class FileStorage implements DataInterface {
+
+	protected string $_id;
 
 	public function __construct(string $id) {
 		return $this->_id = $id;
@@ -15,42 +16,42 @@ class FileStorage implements DataInterface
 
 	public function getEntryContent() {
 		global $conf;
-		if (!$this->entryExists($this->_id)) return null;
+		if(!$this->entryExists($this->_id)) return NULL;
 
-		$file = file_get_contents($conf['file-path'] . $this->_id);
+		$file = file_get_contents($conf['file-path'].$this->_id);
 		$data = json_decode($file, TRUE);
 		return $data['content'];
 	}
 
 	public function getEntryMetaData() {
 		global $conf;
-		if (!$this->entryExists($this->_id)) return null;
+		if(!$this->entryExists($this->_id)) return NULL;
 
-		$file = file_get_contents($conf['file-path'] . $this->_id);
+		$file = file_get_contents($conf['file-path'].$this->_id);
 		$data = json_decode($file, TRUE);
 		return $data['metadata'];
 	}
 
-	public function getFileEncryptionData(string $id) {
+	public function getFileEncryptionData() {
 		global $conf;
-		if (!$this->entryExists($id)) return null;
+		if(!$this->entryExists($this->_id)) return NULL;
 
-		$file = file_get_contents($conf['file-path'] . $id);
-		$data = json_decode($conf['file-path'] . $id);
+		$file = file_get_contents($conf['file-path'].$this->_id);
+		$data = json_decode($file);
 		return ['iv' => $data['iv'], 'tag' => $data['tag']];
 	}
 
 	public function entryExists(string $id) {
 		global $conf;
-		return file_exists($conf['file-path'] . $id);
+		return file_exists($conf['file-path'].$id);
 	}
 
 	public function saveEntry(EncryptedFile $file, string $password) {
 		global $conf;
 
-		$newFile = fopen($conf['file-path'] . $this->_id, "w");
+		$newFile = fopen($conf['file-path'].$this->_id, "w");
 		$content = [
-			'expiry' => new DateTime('+1 day').getTimestamp(),
+			'expiry' => (new DateTime('+1 day'))->getTimestamp(),
 			'metadata' => $file->getEncryptedMetaData(),
 			'iv' => $file->getIV(),
 			'tag' => $file->getTag(),
@@ -60,5 +61,19 @@ class FileStorage implements DataInterface
 		$txt = json_encode($content, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 		fwrite($newFile, $txt);
 		return fclose($newFile);
+	}
+
+	/**
+	 * Delete a stored entry (file)
+	 *
+	 * @param string $id ID of the entry to delete
+	 * @return mixed
+	 * @throws Exception
+	 */
+	public function deleteEntry(string $id) {
+		if(!$this->entryExists($id)) throw new Exception("No file found by that ID");
+
+		global $conf;
+		return unlink($conf['file-path'].$id);
 	}
 }
