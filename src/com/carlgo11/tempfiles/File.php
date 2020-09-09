@@ -17,7 +17,7 @@ class File
 	protected $_id;
 	protected $_content;
 	protected $_currentViews;
-	protected $_maxViews;
+	protected $_maxViews = 0;
 	protected $_deletionPassword;
 	protected $_metaData;
 	protected $_iv;
@@ -26,11 +26,11 @@ class File
 	/**
 	 * Main function of File class.
 	 *
-	 * @param array $file {@link https://www.php.net/manual/en/reserved.variables.files.php $_FILES} array if available.
-	 * @param string $id ID if one is already set.
+	 * @param null $file {@link https://www.php.net/manual/en/reserved.variables.files.php $_FILES} array if available.
+	 * @param string|null $id ID if one is already set.
 	 * @since 2.2
 	 */
-	public function __construct($file, string $id = NULL) {
+	public function __construct($file = NULL, string $id = NULL) {
 		if ($id === NULL) $this->generateID();
 		else $this->setID($id);
 
@@ -103,11 +103,11 @@ class File
 	/**
 	 * Gets the current views of the file if available.
 	 *
-	 * @return mixed Returns current views/downloads of the file if supplied, otherwise NULL.
+	 * @return int Returns current views/downloads of the file if supplied, otherwise NULL.
 	 * @since 2.2
 	 */
 	public function getCurrentViews() {
-		return $this->_currentViews;
+		return (int) $this->_currentViews;
 	}
 
 	/**

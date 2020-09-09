@@ -1,9 +1,10 @@
 <?php
 
 namespace com\carlgo11\tempfiles\api;
-class API
-{
-	protected $_messages = [];
+
+class API {
+
+	protected array $_messages = [];
 
 	public function addMessage(string $key, $value) {
 		return ($this->_messages[$key] = $value) === $value;

@@ -10,5 +10,6 @@ return [
 	# Download URL
 	'download-url' => getenv('TMP_DOWNLOAD_URL') ?: 'https://d.carlgo11.com/%1$s/?p=%2$s',
 	# API Download URL
-	'api-download-url' => getenv('TMP_API_DOWNLOAD_URL') ?: 'https://api.tempfiles.download/download/?id=%1$s&p=%2$s'
+	'api-download-url' => getenv('TMP_API_DOWNLOAD_URL') ?: 'https://api.tempfiles.download/download/?id=%1$s&p=%2$s',
+	'storage' => 'File'
 ];

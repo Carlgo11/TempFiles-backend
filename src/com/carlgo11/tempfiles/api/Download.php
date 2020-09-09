@@ -2,12 +2,11 @@
 
 namespace com\carlgo11\tempfiles\api;
 
-use com\carlgo11\tempfiles\FileStorage;
+use com\carlgo11\tempfiles\datastorage\DataStorage;
 use com\carlgo11\tempfiles\Misc;
 use Exception;
 
-class Download extends API
-{
+class Download extends API {
 
 	/**
 	 * Download constructor.
@@ -21,8 +20,8 @@ class Download extends API
 		$id = Misc::getVar('id');
 		$p = Misc::getVar('p');
 
-		$fileStorage = new FileStorage();
-		$file = $fileStorage->getFile($id, $p);
+		include_once __DIR__ . '/../datastorage/DataStorage.php';
+		$file = DataStorage::getFile($id, $p);
 
 		if (isset($file) && $file !== FALSE) {
 			$metadata = $file->getMetaData();
@@ -36,7 +35,7 @@ class Download extends API
 			]);
 			parent::outputJSON(200);
 
-			if ($file->setCurrentViews(($file->getCurrentViews() + 1))) $fileStorage->setViews($file, ($file->getCurrentViews() + 1), $p);
+			if ($file->setCurrentViews(($file->getCurrentViews() + 1))) DataStorage::setViews($file, $p, $file->getCurrentViews() + 1);
 		} else throw new Exception("File not found");
 	}
 }

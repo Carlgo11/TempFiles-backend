@@ -9,8 +9,7 @@ use Exception;
  *
  * @since 2.0
  */
-class Encryption
-{
+class Encryption {
 
 	/**
 	 * Encrypts and encodes the content (data) of a file.
@@ -18,8 +17,8 @@ class Encryption
 	 * @param string $content Data to encrypt.
 	 * @param string $password Password used to encrypt data.
 	 * @return array Returns encoded and encrypted file content.
-	 * @global array $conf Configuration variables.
 	 * @throws Exception
+	 * @global array $conf Configuration variables.
 	 * @since 2.3 Added support for AEAD cipher modes.
 	 * @since 2.0
 	 */
@@ -28,13 +27,8 @@ class Encryption
 		$cipher = $conf['Encryption-Method'];
 		$iv = self::getIV($cipher);
 
-		$data = base64_encode(openssl_encrypt($content, $cipher, $password, OPENSSL_RAW_DATA, $iv, $tag));
-		/*		echo "Encryption: ";
-				var_dump($cipher);
-				var_dump(bin2hex($tag));
-				var_dump(bin2hex($iv));
-				echo "\n";*/
-		return ['data' => $data, 'iv' => bin2hex($iv), 'tag' => bin2hex($tag)];
+		$data = openssl_encrypt($content, $cipher, $password, OPENSSL_RAW_DATA, $iv, $tag);
+		return ['data' => bin2hex($data), 'iv' => bin2hex($iv), 'tag' => bin2hex($tag)];
 	}
 
 	/**
@@ -55,7 +49,7 @@ class Encryption
 	/**
 	 * Encrypts and encodes the metadata (details) of a file.
 	 *
-	 * @param array $file the $_FILES[] array to use.
+	 * @param array $metadata the $_FILES[] array to use.
 	 * @param string $deletionPassword Deletion password to encrypt along with the metadata.
 	 * @param int $currentViews Current views of the file.
 	 * @param int $maxViews Max allowable views of the file before deletion.
@@ -67,34 +61,31 @@ class Encryption
 	 * @since 2.3 Added support for AEAD cipher modes.
 	 * @global array $conf Configuration variables.
 	 */
-	public static function encryptFileDetails(array $file, string $deletionPassword, int $currentViews, int $maxViews, string $password) {
+	public static function encryptFileDetails(array $metadata, string $deletionPassword, int $currentViews, int $maxViews, string $password) {
 		global $conf;
 		$cipher = $conf['Encryption-Method'];
 		$iv = self::getIV($cipher);
 
-		$deletionPass = base64_encode(password_hash($deletionPassword, PASSWORD_BCRYPT));
-		$views_string = base64_encode(implode(' ', [$currentViews, $maxViews]));
+		$deletionPass = password_hash($deletionPassword, PASSWORD_BCRYPT);
+		$views_string = implode(' ', [$currentViews, $maxViews]);
 		$data_array = [
-			base64_encode($file['name']),
-			base64_encode($file['size']),
-			base64_encode($file['type']),
-			$deletionPass,
-			$views_string
+			base64_encode($metadata['name']),
+			base64_encode($metadata['size']),
+			base64_encode($metadata['type']),
+			base64_encode($deletionPass),
+			base64_encode($views_string)
 		];
-		$data_string = implode(";", $data_array);
+
+		$data_string = implode(" ", $data_array);
 
 		$data_enc = base64_encode(openssl_encrypt($data_string, $cipher, $password, OPENSSL_RAW_DATA, $iv, $tag));
-		/*		echo "Encryption: ";
-				var_dump($cipher);
-				var_dump(bin2hex($tag));
-				var_dump(bin2hex($iv));
-				echo "\n";*/
+
+		// Test if encrypted data is able to be decrypted
 		if (Encryption::decrypt(base64_decode($data_enc), $password, bin2hex($iv), bin2hex($tag), OPENSSL_RAW_DATA) != FALSE)
 			return ['data' => $data_enc, 'iv' => bin2hex($iv), 'tag' => bin2hex($tag)];
-		else {
-			error_log("Decryption returned false");
-			return FALSE;
-		}
+
+		error_log("Metadata encryption failed.");
+		return FALSE;
 	}
 
 	/**
@@ -103,8 +94,8 @@ class Encryption
 	 * @param string $data Data to decrypt.
 	 * @param string $password Password used to decrypt.
 	 * @param string $iv IV for decryption.
-	 * @param string $tag AEAD tag from the data encryption.
-	 * @param string $options OPENSSL options.
+	 * @param string|null $tag AEAD tag from the data encryption.
+	 * @param array|null $options OPENSSL options.
 	 * @return string Returns decrypted data.
 	 * @global array $conf Configuration variables.
 	 * @since 2.0

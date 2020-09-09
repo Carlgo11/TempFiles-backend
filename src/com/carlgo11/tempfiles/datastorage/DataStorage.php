@@ -24,12 +24,12 @@ class DataStorage {
 	 * @throws Exception
 	 * @since 2.5
 	 */
-	public function getFile(string $id, string $password) {
+	public static function getFile(string $id, string $password) {
 		global $conf;
 
 		$storage = NULL;
-		if($conf['storage'] == 'File') $storage = new FileStorage($id);
-		elseif($conf['storage'] == 'MySQL') $storage = new MySQLStorage();
+		if ($conf['storage'] == 'File') $storage = new FileStorage($id);
+		elseif ($conf['storage'] == 'MySQL') $storage = new MySQLStorage($id);
 
 		$storedContent = $storage->getEntryContent();
 		$storedMetaData = $storage->getEntryMetaData();
@@ -50,17 +50,16 @@ class DataStorage {
 	 *
 	 * @param File $file {@see File} object to store.
 	 * @param String $password Encryption key.
-	 * @return mixed|void
+	 * @return boolean Returns TRUE if successful, otherwise false.
 	 * @throws Exception
 	 * @since 2.5
 	 */
-	public function saveFile(File $file, string $password) {
+	public static function saveFile(File $file, string $password) {
 		global $conf;
 
-		$storage = NULL;
-		if($conf['storage'] == 'File') $storage = new FileStorage($file);
-		elseif($conf['storage'] == 'MySQL') $storage = new MySQLStorage();
+		$storage = DataStorage::getStorage($file);
 
+		include_once __DIR__ . '/../EncryptedFile.php';
 		$encryptedFile = new EncryptedFile();
 		$encryptedFile->setFileContent($file->getContent(), $password);
 		$encryptedFile->setFileMetaData($file->getMetaData(), $file, $password);
@@ -68,25 +67,43 @@ class DataStorage {
 		return $storage->saveEntry($encryptedFile, $password);
 	}
 
-	public function deleteFile($id, $password, $deletionPassword) {
+	public static function getStorage(string $id) {
+		global $conf;
+		include_once __DIR__ . '/DataInterface.php';
+		if ($conf['storage'] == 'File') {
+			include_once __DIR__ . '/FileStorage.php';
+			return new FileStorage($id);
+		} elseif ($conf['storage'] == 'MySQL') {
+			include_once __DIR__ . '/MySQLStorage.php';
+			return new MySQLStorage($id);
+		}
+	}
+
+	/**
+	 * @param $id
+	 * @param $password
+	 * @param $deletionPassword
+	 * @return false|mixed
+	 * @throws Exception
+	 */
+	public static function deleteFile($id, $password, $deletionPassword) {
 		global $conf;
 
-		$storage = NULL;
-		if($conf['storage'] == 'File') $storage = new FileStorage($id);
-		elseif($conf['storage'] == 'MySQL') $storage = new MySQLStorage();
+		$storage = DataStorage::getStorage($id);
+		if ($conf['storage'] == 'File') $storage = new FileStorage($id);
+		elseif ($conf['storage'] == 'MySQL') $storage = new MySQLStorage($id);
 
 		$storedEncryptionData = $storage->getFileEncryptionData();
 		$metadata = Encryption::decrypt($storage->getEntryMetaData(), $password, $storedEncryptionData['iv'], $storedEncryptionData['tag']);
 
 		// Get deletion password from metadata array
 		$delpass = $metadata[3];
-		if(password_verify($deletionPassword, $delpass)) {
-			return $storage->deleteEntry($id);
-		}
-		return FALSE;
+		if (password_verify($deletionPassword, $delpass)) return $storage->deleteEntry($id);
+
+		throw new Exception("Bad ID or Password.");
 	}
 
-	public function setViews(File $file, string $password) {
+	public static function setViews(File $file, string $password, int $views) {
 		// TODO: Implement setViews() method.
 	}
 }

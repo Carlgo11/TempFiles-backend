@@ -16,40 +16,40 @@ class FileStorage implements DataInterface {
 
 	public function getEntryContent() {
 		global $conf;
-		if(!$this->entryExists($this->_id)) return NULL;
+		if (!$this->entryExists($this->_id)) return NULL;
 
-		$file = file_get_contents($conf['file-path'].$this->_id);
+		$file = file_get_contents($conf['file-path'] . $this->_id);
 		$data = json_decode($file, TRUE);
 		return $data['content'];
 	}
 
+	public function entryExists(string $id) {
+		global $conf;
+		return file_exists($conf['file-path'] . $id);
+	}
+
 	public function getEntryMetaData() {
 		global $conf;
-		if(!$this->entryExists($this->_id)) return NULL;
+		if (!$this->entryExists($this->_id)) return NULL;
 
-		$file = file_get_contents($conf['file-path'].$this->_id);
+		$file = file_get_contents($conf['file-path'] . $this->_id);
 		$data = json_decode($file, TRUE);
 		return $data['metadata'];
 	}
 
 	public function getFileEncryptionData() {
 		global $conf;
-		if(!$this->entryExists($this->_id)) return NULL;
+		if (!$this->entryExists($this->_id)) return NULL;
 
-		$file = file_get_contents($conf['file-path'].$this->_id);
+		$file = file_get_contents($conf['file-path'] . $this->_id);
 		$data = json_decode($file);
 		return ['iv' => $data['iv'], 'tag' => $data['tag']];
-	}
-
-	public function entryExists(string $id) {
-		global $conf;
-		return file_exists($conf['file-path'].$id);
 	}
 
 	public function saveEntry(EncryptedFile $file, string $password) {
 		global $conf;
 
-		$newFile = fopen($conf['file-path'].$this->_id, "w");
+		$newFile = fopen($conf['file-path'] . $this->_id, "w");
 		$content = [
 			'expiry' => (new DateTime('+1 day'))->getTimestamp(),
 			'metadata' => $file->getEncryptedMetaData(),
@@ -71,9 +71,9 @@ class FileStorage implements DataInterface {
 	 * @throws Exception
 	 */
 	public function deleteEntry(string $id) {
-		if(!$this->entryExists($id)) throw new Exception("No file found by that ID");
+		if (!$this->entryExists($id)) throw new Exception("No file found by that ID");
 
 		global $conf;
-		return unlink($conf['file-path'].$id);
+		return unlink($conf['file-path'] . $id);
 	}
 }

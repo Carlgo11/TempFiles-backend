@@ -28,7 +28,7 @@ $conf = checkFile(__DIR__ . '/config.php');
 checkFile(__DIR__ . '/Encryption.php');
 checkFile(__DIR__ . '/Misc.php');
 checkFile(__DIR__ . '/File.php');
-checkFile(__DIR__ . '/API.php');
+checkFile(__DIR__ . '/api/API.php');
 checkFile(__DIR__ . '/FileStorage.php');
 
 createDirectory($conf['file-path']);

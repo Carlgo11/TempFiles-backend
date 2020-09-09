@@ -2,13 +2,12 @@
 
 namespace com\carlgo11\tempfiles\api;
 
+use com\carlgo11\tempfiles\datastorage\DataStorage;
 use com\carlgo11\tempfiles\File;
-use com\carlgo11\tempfiles\FileStorage;
 use com\carlgo11\tempfiles\Misc;
 use Exception;
 
-class Upload extends API
-{
+class Upload extends API {
 
 	/**
 	 * Upload constructor.
@@ -43,10 +42,9 @@ class Upload extends API
 			$file->setMetaData($metadata);
 			$file->setContent(file_get_contents($fileContent['tmp_name']));
 
-			include_once __DIR__ . "/../FileStorage.php";
-			$fileStorage = new FileStorage();
-			$fileStorage->saveFile($file, $password);
 
+			include_once __DIR__ . '/../datastorage/DataStorage.php';
+			DataStorage::saveFile($file, $password);
 
 			// Full URI to download the file
 			$completeURL = sprintf($conf['download-url'], $file->getID(), $password);
