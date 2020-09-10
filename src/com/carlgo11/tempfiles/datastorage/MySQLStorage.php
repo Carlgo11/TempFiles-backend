@@ -7,14 +7,11 @@ use com\carlgo11\tempfiles\EncryptedFile;
 class MySQLStorage implements DataInterface
 {
 
-	public function __construct(string $id) {
-	}
-
-	public function getEntryContent() {
+	public function getEntryContent($id) {
 		// TODO: Implement getEntryContent() method.
 	}
 
-	public function getEntryMetaData() {
+	public function getEntryMetaData($id) {
 		// TODO: Implement getEntryMetaData() method.
 	}
 
@@ -48,5 +45,9 @@ class MySQLStorage implements DataInterface
 	 */
 	public function deleteEntry(string $id) {
 		// TODO: Implement deleteEntry() method.
+	}
+
+	public function listEntries() {
+		// TODO: Implement listEntries() method.
 	}
 }

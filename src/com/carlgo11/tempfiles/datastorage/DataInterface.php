@@ -6,11 +6,10 @@ use com\carlgo11\tempfiles\EncryptedFile;
 
 interface DataInterface {
 
-	public function __construct(string $id);
 
-	public function getEntryContent();
+	public function getEntryContent($id);
 
-	public function getEntryMetaData();
+	public function getEntryMetaData($id);
 
 	/**
 	 * Save an uploaded entry (file)
@@ -37,4 +36,6 @@ interface DataInterface {
 	 * @since 2.5
 	 */
 	public function deleteEntry(string $id);
+
+	public function listEntries();
 }

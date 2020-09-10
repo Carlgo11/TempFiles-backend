@@ -8,17 +8,11 @@ use Exception;
 
 class FileStorage implements DataInterface {
 
-	protected string $_id;
-
-	public function __construct(string $id) {
-		return $this->_id = $id;
-	}
-
-	public function getEntryContent() {
+	public function getEntryContent($id) {
 		global $conf;
-		if (!$this->entryExists($this->_id)) return NULL;
+		if (!$this->entryExists($id)) return NULL;
 
-		$file = file_get_contents($conf['file-path'] . $this->_id);
+		$file = file_get_contents($conf['file-path'] . $id);
 		$data = json_decode($file, TRUE);
 		return $data['content'];
 	}
@@ -28,28 +22,27 @@ class FileStorage implements DataInterface {
 		return file_exists($conf['file-path'] . $id);
 	}
 
-	public function getEntryMetaData() {
+	public function getEntryMetaData($id) {
 		global $conf;
-		if (!$this->entryExists($this->_id)) return NULL;
+		if (!$this->entryExists($id)) return NULL;
 
-		$file = file_get_contents($conf['file-path'] . $this->_id);
+		$file = file_get_contents($conf['file-path'] . $id);
 		$data = json_decode($file, TRUE);
 		return $data['metadata'];
 	}
 
-	public function getFileEncryptionData() {
+	public function getFileEncryptionData($id) {
 		global $conf;
-		if (!$this->entryExists($this->_id)) return NULL;
+		if (!$this->entryExists($id)) return NULL;
 
-		$file = file_get_contents($conf['file-path'] . $this->_id);
+		$file = file_get_contents($conf['file-path'] . $id);
 		$data = json_decode($file);
 		return ['iv' => $data['iv'], 'tag' => $data['tag']];
 	}
 
 	public function saveEntry(EncryptedFile $file, string $password) {
 		global $conf;
-
-		$newFile = fopen($conf['file-path'] . $this->_id, "w");
+		$newFile = fopen($conf['file-path'] . $file, "w");
 		$content = [
 			'expiry' => (new DateTime('+1 day'))->getTimestamp(),
 			'metadata' => $file->getEncryptedMetaData(),
@@ -75,5 +68,10 @@ class FileStorage implements DataInterface {
 
 		global $conf;
 		return unlink($conf['file-path'] . $id);
+	}
+
+	public function listEntries() {
+		global $conf;
+		return array_diff(scandir($conf['file-path']), array('.', '..'));
 	}
 }

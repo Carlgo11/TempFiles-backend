@@ -17,10 +17,10 @@ class Delete extends API {
 		$id = Misc::getVar('id');
 		$password = Misc::getVar('p');
 		$deletionPassword = Misc::getVar('delete');
+		$storedFile = DataStorage::getFile($id, $password);
 
-		$result = DataStorage::deleteFile($id, $password, $deletionPassword);
-
-		if ($result) parent::addMessage('success', TRUE);
+		if (password_verify($deletionPassword, $storedFile->getDeletionPassword()))
+			parent::addMessage('success', DataStorage::deleteFile($id));
 		else throw new Exception("Bad ID or Password.");
 	}
 }

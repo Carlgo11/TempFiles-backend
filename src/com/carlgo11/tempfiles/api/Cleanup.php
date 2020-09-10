@@ -2,11 +2,10 @@
 
 namespace com\carlgo11\tempfiles\api;
 
-use com\carlgo11\tempfiles\FileStorage;
+use com\carlgo11\tempfiles\datastorage\DataStorage;
 use Exception;
 
-class Cleanup extends API
-{
+class Cleanup extends API {
 
 	/**
 	 * Cleanup constructor.
@@ -19,9 +18,8 @@ class Cleanup extends API
 	public function __construct(string $method) {
 		if ($method !== 'PURGE') throw new Exception("Bad HTTP method. Use PURGE.");
 
-		$fileStorage = new FileStorage();
-		$status = filter_var($fileStorage->deleteOldFiles(), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
-		parent::addMessage('success', $status);
+		DataStorage::deleteOldFiles();
+		parent::addMessage('success', TRUE);
 		parent::outputJSON(202);
 	}
 }
