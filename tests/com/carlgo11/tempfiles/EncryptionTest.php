@@ -54,7 +54,7 @@ class EncryptionTest extends TestCase
 		$this->assertIsString($encrypted['iv']);
 		$this->assertIsString($encrypted['tag']);
 
-		$decrypted = explode(";", Encryption::decrypt(base64_decode($encrypted['data']), $password, $encrypted['iv'], $encrypted['tag'], OPENSSL_RAW_DATA));
+		$decrypted = explode(" ", Encryption::decrypt(base64_decode($encrypted['data']), $password, $encrypted['iv'], $encrypted['tag'], OPENSSL_RAW_DATA));
 
 		// Test $decrypted output
 		$this->assertIsArray($decrypted);
