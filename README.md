@@ -2,7 +2,7 @@
 [![GitHub Workflow Status](https://img.shields.io/github/workflow/status/Carlgo11/Tempfiles-backend/Test%20PHPUnit?style=for-the-badge)](https://github.com/Carlgo11/Tempfiles-backend/actions)
 [![GitHub](https://img.shields.io/github/license/carlgo11/tempfiles-backend?style=for-the-badge)](https://github.com/Carlgo11/TempFiles-backend/blob/master/LICENSE)
 [![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/carlgo11/tempfiles-backend?style=for-the-badge)](https://github.com/Carlgo11/TempFiles-backend/releases)
-
+[![Docker](https://img.shields.io/badge/Docker-Download-2496ed?style=for-the-badge&logo=docker&logoColor=fff)](https://hub.docker.com/r/carlgo11/tempfiles-backend)
 ## API calls :mega:
 A list of available API calls can be found over at [Postman](https://documenter.getpostman.com/view/1675224/SW7ezkZn).
 
@@ -20,32 +20,24 @@ composer install
 ```
 
 ## Deployment via Docker Compose
+1. Set up a new directory for TempFiles  
+    ```BASH
+    mkdir /opt/tempfiles
+    cd /opt/tempfiles
+    ```
 
 1. Copy nginx.conf.  
     Set up a virtual server config for nginx to use.
-    ```NGINX
-    # API
-    server {
-        listen 5392;
-        server_name _;
-        root "/app";
-        index API.php;
-        rewrite ^/(.*)+$ /API.php?$1;
-        include /opt/docker/etc/nginx/vhost.common.d/*.conf;
-    }
-    
-    # Download
-    server {
-        listen 5393;
-        server_name _;
-        root "/app";
-        index Download.php;
-        rewrite ^/(.*)+$ /Download.php?$1;
-        include /opt/docker/etc/nginx/vhost.common.d/*.conf;
-    }
+    ```bash
+       mkdir resources
+       curl https://raw.githubusercontent.com/Carlgo11/TempFiles-backend/master/resources/nginx.conf > nginx.conf
     ```
-2. Create a docker-compose.yml file.  
-    Load the previously created Nginx-file as a volume.
+
+1. Create a docker-compose.yml file.  
+    ```BASH
+    nano docker-compose.yml
+   ```
+   And paste in the following:
     ```YAML 
     version: '3.2'
     services:
@@ -56,15 +48,15 @@ composer install
           - "5393:5393"
         volumes:
           - ./resources/nginx.conf:/opt/docker/etc/nginx/vhost.conf
-    
         environment:
           - PHP_POST_MAX_SIZE=128M
           - PHP_UPLOAD_MAX_FILESIZE=128M
         restart: always
     ```
-3. Set up a second webserver as a reverse proxy for the docker container(s).
+3. Set up a second webserver as a reverse proxy for the docker container(s).  
+    _This can be done with Apache or Nginx. Here's an example config for Nginx:_
     ```NGINX
-    # API config
+    # API
     server {
             listen 443 ssl http2;
             server_name api.tempfiles.download;
@@ -82,7 +74,7 @@ composer install
             }
     }
    
-   # Download config
+   # Download
    server {
            listen 443 ssl http2;
            server_name d.tempfiles.download;
@@ -96,8 +88,14 @@ composer install
            }
    }
    ```
+4. Run the container
+   ```BASH
+   docker-compose up -d
+   ```
 
 ## Manual Deployment :desktop_computer:
+Installation can also be done without using Docker.  
+Here's how to set up TempFiles-Backend directly on a Linux server:
 
 1. Install PHP, Nginx, Git, Composer  
    ```BASH
