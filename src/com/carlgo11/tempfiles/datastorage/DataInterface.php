@@ -17,6 +17,7 @@ interface DataInterface {
 	 * @param EncryptedFile $file {@see EncryptedFile} object to store
 	 * @param string $password Encryption key
 	 * @return mixed
+	 * @since 2.5
 	 */
 	public function saveEntry(EncryptedFile $file, string $password);
 
@@ -25,6 +26,7 @@ interface DataInterface {
 	 *
 	 * @param string $id ID of the entry (file)
 	 * @return boolean Returns TRUE if entry exists, otherwise FALSE.
+	 * @since 2.5
 	 */
 	public function entryExists(string $id);
 
@@ -37,5 +39,9 @@ interface DataInterface {
 	 */
 	public function deleteEntry(string $id);
 
+	/**
+	 * @return mixed
+	 * @since 2.5
+	 */
 	public function listEntries();
 }

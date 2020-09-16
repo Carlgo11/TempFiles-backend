@@ -6,6 +6,13 @@ use com\carlgo11\tempfiles\EncryptedFile;
 use DateTime;
 use Exception;
 
+/**
+ * Local file storage class
+ *
+ * Should only be called by {@see DataStorage}!
+ *
+ * @package com\carlgo11\tempfiles\datastorage
+ */
 class FileStorage implements DataInterface {
 
 	public function getEntryContent($id) {
@@ -40,11 +47,33 @@ class FileStorage implements DataInterface {
 		return ['iv' => $data['iv'], 'tag' => $data['tag']];
 	}
 
+	private function getExpiry(string $id) {
+		global $conf;
+		if (!$this->entryExists($id)) return NULL;
+
+		$file = file_get_contents($conf['file-path'] . $id);
+		$data = json_decode($file, TRUE);
+		return $data['expiry'];
+	}
+
+	/**
+	 * Save an uploaded entry (file)
+	 *
+	 * @param EncryptedFile $file {@see EncryptedFile} object to store
+	 * @param string $password Encryption key
+	 * @return mixed
+	 * @since 2.5
+	 */
 	public function saveEntry(EncryptedFile $file, string $password) {
 		global $conf;
 		$newFile = fopen($conf['file-path'] . $file, "w");
+
+		// Get expiry date if file already exists
+		if ($this->entryExists($file)) $expiry = $this->getExpiry($file);
+		else $expiry = (new DateTime('+1 day'))->getTimestamp();
+
 		$content = [
-			'expiry' => (new DateTime('+1 day'))->getTimestamp(),
+			'expiry' => $expiry,
 			'metadata' => $file->getEncryptedMetaData(),
 			'iv' => $file->getIV(),
 			'tag' => $file->getTag(),

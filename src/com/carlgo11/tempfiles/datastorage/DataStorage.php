@@ -67,6 +67,12 @@ class DataStorage {
 		return $storage->saveEntry($encryptedFile, $password);
 	}
 
+	/**
+	 * Get storage method.
+	 *
+	 * @return FileStorage|MySQLStorage|false
+	 * @since 2.5
+	 */
 	public static function getStorage() {
 		global $conf;
 		include_once __DIR__ . '/DataInterface.php';
@@ -81,6 +87,8 @@ class DataStorage {
 	}
 
 	/**
+	 * Delete a stored file
+	 *
 	 * @param $id
 	 * @return false|mixed
 	 * @throws Exception
@@ -96,7 +104,10 @@ class DataStorage {
 	}
 
 	/**
-	 * @throws Exception
+	 * Delete all files older than 24 hours.
+	 *
+	 * @throws Exception Throws any exceptions from the storage class
+	 * @since 2.5
 	 */
 	public static function deleteOldFiles() {
 		$storage = DataStorage::getStorage();
