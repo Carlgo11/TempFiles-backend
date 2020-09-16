@@ -1,8 +1,25 @@
 {
+  "name": "TempFiles",
+  "description": "Upload files securely over the internet for a set amount of time.",
+  "version": "2.5",
+  "homepage": "https://github.com/Carlgo11/TempFiles-backend",
+  "readme": "./README.md",
+  "support": {
+    "issues": "https://github.com/Carlgo11/TempFiles-backend/issues",
+    "source": "https://github.com/Carlgo11/TempFiles-backend.git"
+  },
+  "authors": [
+    {
+      "name": "Carlgo11"
+      "role": "Developer",
+      "homepage": "https://carlgo11.com/"
+    }
+  ],
+  "license": "GPL-3.0-only",
   "require-dev": {
     "phpunit/phpunit": "^8.1",
     "phpunit/php-code-coverage": "^7.0",
-    "phpdocumentor/phpdocumentor": "2.*"
+    "phpdocumentor/phpdocumentor": "^2.9"
   },
   "require": {
     "ext-json": "*",
