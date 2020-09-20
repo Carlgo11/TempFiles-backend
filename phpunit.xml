@@ -1,4 +1,4 @@
-<phpunit bootstrap="src/com/carlgo11/tempfiles/Autoload.php" colors="true">
+<phpunit bootstrap=" src/com/carlgo11/tempfiles/autoload.php" colors="true">
     <testsuites>
         <testsuite name="tempfiles">
             <directory>tests</directory>

@@ -1,0 +1,7 @@
+.*
+vendor/
+Dockerfile
+docker-compose.yml
+LICENSE
+README.md
+*.phar
