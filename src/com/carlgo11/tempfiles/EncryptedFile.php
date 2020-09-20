@@ -6,12 +6,21 @@ namespace com\carlgo11\tempfiles;
 
 use Exception;
 
-class EncryptedFile
-{
+class EncryptedFile {
+
 	protected $_blob;
 	protected $_iv;
 	protected $_tag;
 	protected $_metadata;
+	protected string $_id;
+
+	public function __toString() {
+		return $this->_id;
+	}
+
+	public function setID(string $id) {
+		$this->_id = $id;
+	}
 
 	/**
 	 * @param String $blob Binary blob
@@ -34,7 +43,7 @@ class EncryptedFile
 	 * @throws Exception
 	 */
 	public function setFileMetaData(array $metadata, File $file, string $password) {
-		$data = Encryption::encryptFileDetails($metadata, $file->getDeletionPassword(), (int) $file->getCurrentViews(), (int) $file->getMaxViews(), $password);
+		$data = Encryption::encryptFileDetails($metadata, $file->getDeletionPassword(), (int)$file->getCurrentViews(), (int)$file->getMaxViews(), $password);
 		$this->_metadata = $data['data'];
 		$this->_iv[1] = $data['iv'];
 		$this->_tag[1] = $data['tag'];

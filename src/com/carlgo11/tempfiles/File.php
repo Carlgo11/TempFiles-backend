@@ -124,6 +124,7 @@ class File
 				$this->_currentViews = $views;
 				return TRUE;
 			} else if ($views >= $this->_maxViews) {
+				//TODO: Fix broken calls to FileStorage
 				$fileStorage = new FileStorage();
 				$fileStorage->deleteFile($this->_id);
 				unset($fileStorage);

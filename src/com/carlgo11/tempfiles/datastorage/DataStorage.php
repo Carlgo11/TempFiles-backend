@@ -27,44 +27,21 @@ class DataStorage {
 	public static function getFile(string $id, string $password) {
 		global $conf;
 
-		$storage = NULL;
-		if ($conf['storage'] == 'File') $storage = new FileStorage();
-		elseif ($conf['storage'] == 'MySQL') $storage = new MySQLStorage();
+		$storage = DataStorage::getStorage();
 
 		$storedContent = $storage->getEntryContent($id);
 		$storedMetaData = $storage->getEntryMetaData($id);
 		$storedEncryptionData = $storage->getFileEncryptionData($id);
 
-		$content = Encryption::decrypt($storedContent, $password, $storedEncryptionData[0], $storedEncryptionData[2]);
-		$metadata = Encryption::decrypt($storedMetaData, $password, $storedEncryptionData[1], $storedEncryptionData[3]);
-
+		$content = Encryption::decrypt($storedContent, $password, $storedEncryptionData['iv'][0], $storedEncryptionData['tag'][0]);
+		$metadata = Encryption::decrypt($storedMetaData, $password, $storedEncryptionData['iv'][1], $storedEncryptionData['tag'][1]);
+		$metadata = explode(' ', $metadata);
 		$file = new File(NULL, $id);
 		$file->setContent($content);
-		$file->setMetaData(explode(' ', $metadata));
+		// Keys are lost during storage.
+		$file->setMetaData(['size' => base64_decode($metadata[1]), 'name' => base64_decode($metadata[0]), 'type' => base64_decode($metadata[2])]);
 
 		return $file;
-	}
-
-	/**
-	 * Save an uploaded file.
-	 *
-	 * @param File $file {@see File} object to store.
-	 * @param String $password Encryption key.
-	 * @return boolean Returns TRUE if successful, otherwise false.
-	 * @throws Exception
-	 * @since 2.5
-	 */
-	public static function saveFile(File $file, string $password) {
-		global $conf;
-
-		$storage = DataStorage::getStorage();
-
-		include_once __DIR__ . '/../EncryptedFile.php';
-		$encryptedFile = new EncryptedFile();
-		$encryptedFile->setFileContent($file->getContent(), $password);
-		$encryptedFile->setFileMetaData($file->getMetaData(), $file, $password);
-
-		return $storage->saveEntry($encryptedFile, $password);
 	}
 
 	/**
@@ -87,16 +64,26 @@ class DataStorage {
 	}
 
 	/**
-	 * Delete a stored file
+	 * Save an uploaded file.
 	 *
-	 * @param $id
-	 * @return false|mixed
+	 * @param File $file {@see File} object to store.
+	 * @param String $password Encryption key.
+	 * @return boolean Returns TRUE if successful, otherwise false.
 	 * @throws Exception
+	 * @since 2.5
 	 */
-	public static function deleteFile($id) {
+	public static function saveFile(File $file, string $password) {
 		global $conf;
+
 		$storage = DataStorage::getStorage();
-		return $storage->deleteEntry($id);
+
+		include_once __DIR__ . '/../EncryptedFile.php';
+		$encryptedFile = new EncryptedFile();
+		$encryptedFile->setFileContent($file->getContent(), $password);
+		$encryptedFile->setFileMetaData($file->getMetaData(), $file, $password);
+		$encryptedFile->setID($file->getID());
+
+		return $storage->saveEntry($encryptedFile, $password);
 	}
 
 	public static function setViews(File $file, string $password, int $views) {
@@ -113,5 +100,18 @@ class DataStorage {
 		$storage = DataStorage::getStorage();
 		foreach ($storage->listEntries() as $entry)
 			DataStorage::deleteFile($entry);
+	}
+
+	/**
+	 * Delete a stored file
+	 *
+	 * @param $id
+	 * @return false|mixed
+	 * @throws Exception
+	 */
+	public static function deleteFile($id) {
+		global $conf;
+		$storage = DataStorage::getStorage();
+		return $storage->deleteEntry($id);
 	}
 }

@@ -43,17 +43,8 @@ class FileStorage implements DataInterface {
 		if (!$this->entryExists($id)) return NULL;
 
 		$file = file_get_contents($conf['file-path'] . $id);
-		$data = json_decode($file);
-		return ['iv' => $data['iv'], 'tag' => $data['tag']];
-	}
-
-	private function getExpiry(string $id) {
-		global $conf;
-		if (!$this->entryExists($id)) return NULL;
-
-		$file = file_get_contents($conf['file-path'] . $id);
 		$data = json_decode($file, TRUE);
-		return $data['expiry'];
+		return ['iv' => $data['iv'], 'tag' => $data['tag']];
 	}
 
 	/**
@@ -83,6 +74,15 @@ class FileStorage implements DataInterface {
 		$txt = json_encode($content, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 		fwrite($newFile, $txt);
 		return fclose($newFile);
+	}
+
+	private function getExpiry(string $id) {
+		global $conf;
+		if (!$this->entryExists($id)) return NULL;
+
+		$file = file_get_contents($conf['file-path'] . $id);
+		$data = json_decode($file, TRUE);
+		return $data['expiry'];
 	}
 
 	/**
