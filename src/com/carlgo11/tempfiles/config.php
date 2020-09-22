@@ -12,7 +12,7 @@ return [
 	# API Download URL
 	'api-download-url' => getenv('TMP_API_DOWNLOAD_URL') ?: 'https://api.tempfiles.download/download/?id=%1$s&p=%2$s',
 	# Storage method. [File, MySQL]
-	'storage' => 'File',
+	'storage' => getenv('TMP_STORAGE_METHOD') ?: 'File',
 	# Hashing cost used for storing deletion passwords.
 	'hash-cost' => getenv('TMP_HASH_COST') ?: 10
 ];
