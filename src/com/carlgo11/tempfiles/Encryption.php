@@ -66,7 +66,8 @@ class Encryption {
 		$cipher = $conf['Encryption-Method'];
 		$iv = self::getIV($cipher);
 
-		$deletionPass = password_hash($deletionPassword, PASSWORD_BCRYPT, filter_var($conf['hash-cost'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 10, 'max_range' => 35]]));
+		$options = ['options' => filter_var($conf['hash-cost'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 10, 'max_range' => 35]])];
+		$deletionPass = password_hash($deletionPassword, PASSWORD_BCRYPT, $options);
 		$views_string = implode(' ', [$currentViews, $maxViews]);
 		$data_array = [
 			base64_encode($metadata['name']),
