@@ -60,8 +60,9 @@ class FileStorage implements DataInterface {
 		$newFile = fopen($conf['file-path'] . $file, "w");
 
 		// Get expiry date if file already exists
-		if ($this->entryExists($file)) $expiry = $this->getExpiry($file);
-		else $expiry = (new DateTime('+1 day'))->getTimestamp();
+		//if ($this->entryExists($file)) $expiry = $this->getExpiry($file);
+		//else
+			$expiry = (new DateTime('+1 day'))->getTimestamp();
 
 		$content = [
 			'expiry' => $expiry,

@@ -16,7 +16,7 @@ class Encryption {
 	 *
 	 * @param string $content Data to encrypt.
 	 * @param string $password Password used to encrypt data.
-	 * @return array Returns encoded and encrypted file content.
+	 * @return array|false Returns encoded and encrypted file content.
 	 * @throws Exception
 	 * @global array $conf Configuration variables.
 	 * @since 2.3 Added support for AEAD cipher modes.
@@ -27,8 +27,13 @@ class Encryption {
 		$cipher = $conf['Encryption-Method'];
 		$iv = self::getIV($cipher);
 
-		$data = openssl_encrypt($content, $cipher, $password, OPENSSL_RAW_DATA, $iv, $tag);
-		return ['data' => bin2hex($data), 'iv' => bin2hex($iv), 'tag' => bin2hex($tag)];
+		$data = base64_encode(openssl_encrypt($content, $cipher, $password, OPENSSL_RAW_DATA, $iv, $tag));
+
+		// Test if encrypted data is able to be decrypted
+		if (Encryption::decrypt(base64_decode($data), $password, bin2hex($iv), bin2hex($tag), OPENSSL_RAW_DATA) != FALSE)
+			return ['data' => $data, 'iv' => bin2hex($iv), 'tag' => bin2hex($tag)];
+		else error_log("Content encryption failed.");
+		return FALSE;
 	}
 
 	/**
@@ -44,6 +49,30 @@ class Encryption {
 	public static function getIV(string $cipher) {
 		$ivLength = openssl_cipher_iv_length($cipher);
 		return random_bytes($ivLength);
+	}
+
+	/**
+	 * Decrypts data.
+	 *
+	 * @param string $input Data to decrypt.
+	 * @param string $password Password used to decrypt.
+	 * @param string $iv IV for decryption.
+	 * @param string|null $tag AEAD tag from the data encryption.
+	 * @param array|null $options OPENSSL options.
+	 * @return string|bool Returns decrypted data or FALSE on failure.
+	 * @throws Exception
+	 * @global array $conf Configuration variables.
+	 * @since 2.0
+	 * @since 2.3 Added support for AEAD cipher modes.
+	 * @since 2.4 Added ability to specify OPENSSL options.
+	 * @global array $conf Configuration variables.
+	 */
+	public static function decrypt(string $input, string $password, string $iv, string $tag = NULL, $options = NULL) {
+		global $conf;
+		$data = openssl_decrypt($input, $conf['Encryption-Method'], $password, $options, hex2bin($iv), hex2bin($tag));
+		if (is_bool($data)) throw new \Exception(openssl_error_string());
+
+		return $data;
 	}
 
 	/**
@@ -87,25 +116,5 @@ class Encryption {
 
 		error_log("Metadata encryption failed.");
 		return FALSE;
-	}
-
-	/**
-	 * Decrypts data.
-	 *
-	 * @param string $data Data to decrypt.
-	 * @param string $password Password used to decrypt.
-	 * @param string $iv IV for decryption.
-	 * @param string|null $tag AEAD tag from the data encryption.
-	 * @param array|null $options OPENSSL options.
-	 * @return string|bool Returns decrypted data or FALSE on failure.
-	 * @global array $conf Configuration variables.
-	 * @since 2.0
-	 * @since 2.3 Added support for AEAD cipher modes.
-	 * @since 2.4 Added ability to specify OPENSSL options.
-	 * @global array $conf Configuration variables.
-	 */
-	public static function decrypt(string $data, string $password, string $iv, string $tag = NULL, $options = NULL) {
-		global $conf;
-		return openssl_decrypt($data, $conf['Encryption-Method'], $password, $options, hex2bin($iv), hex2bin($tag));
 	}
 }

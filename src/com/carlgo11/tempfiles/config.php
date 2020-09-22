@@ -14,5 +14,5 @@ return [
 	# Storage method. [File, MySQL]
 	'storage' => 'File',
 	# Hashing cost used for storing deletion passwords.
-	'hash-cost' => getenv('TMP_HASH_COST') ?: '10'
+	'hash-cost' => getenv('TMP_HASH_COST') ?: 10
 ];

@@ -65,6 +65,7 @@ class Upload extends API {
 					$output['maxviews'] = (int)$file->getMaxViews();
 				}
 				parent::addMessages($output);
+				syslog(LOG_INFO, $output['id'] . " created.");
 				return parent::outputJSON(201);
 			}
 			return TRUE;

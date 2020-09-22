@@ -33,11 +33,12 @@ class DataStorage {
 		$storedMetaData = $storage->getEntryMetaData($id);
 		$storedEncryptionData = $storage->getFileEncryptionData($id);
 
-		$content = Encryption::decrypt($storedContent, $password, $storedEncryptionData['iv'][0], $storedEncryptionData['tag'][0]);
+		$content = Encryption::decrypt(base64_decode($storedContent), $password, $storedEncryptionData['iv'][0], $storedEncryptionData['tag'][0]);
 		$metadata = Encryption::decrypt($storedMetaData, $password, $storedEncryptionData['iv'][1], $storedEncryptionData['tag'][1]);
 		$metadata = explode(' ', $metadata);
 		$file = new File(NULL, $id);
 		$file->setContent($content);
+
 		// Keys are lost during storage.
 		$file->setMetaData(['size' => base64_decode($metadata[1]), 'name' => base64_decode($metadata[0]), 'type' => base64_decode($metadata[2])]);
 
