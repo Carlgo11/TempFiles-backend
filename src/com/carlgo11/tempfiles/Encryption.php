@@ -66,7 +66,7 @@ class Encryption {
 		$cipher = $conf['Encryption-Method'];
 		$iv = self::getIV($cipher);
 
-		$deletionPass = password_hash($deletionPassword, PASSWORD_BCRYPT);
+		$deletionPass = password_hash($deletionPassword, PASSWORD_BCRYPT, filter_var($conf['hash-cost'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 10, 'max_range' => 35]]));
 		$views_string = implode(' ', [$currentViews, $maxViews]);
 		$data_array = [
 			base64_encode($metadata['name']),
@@ -96,7 +96,7 @@ class Encryption {
 	 * @param string $iv IV for decryption.
 	 * @param string|null $tag AEAD tag from the data encryption.
 	 * @param array|null $options OPENSSL options.
-	 * @return string Returns decrypted data.
+	 * @return string|bool Returns decrypted data or FALSE on failure.
 	 * @global array $conf Configuration variables.
 	 * @since 2.0
 	 * @since 2.3 Added support for AEAD cipher modes.
@@ -105,16 +105,6 @@ class Encryption {
 	 */
 	public static function decrypt(string $data, string $password, string $iv, string $tag = NULL, $options = NULL) {
 		global $conf;
-		$data = openssl_decrypt($data, $conf['Encryption-Method'], $password, $options, hex2bin($iv), hex2bin($tag));
-		if (is_bool($data)) {
-			/*			echo "Decryption:";
-						var_dump(openssl_error_string());
-						var_dump(bin2hex($tag));
-						var_dump(bin2hex($iv));
-						echo "\n";*/
-			return FALSE;
-		} else {
-			return $data;
-		}
+		return openssl_decrypt($data, $conf['Encryption-Method'], $password, $options, hex2bin($iv), hex2bin($tag));
 	}
 }
