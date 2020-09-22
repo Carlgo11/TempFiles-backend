@@ -21,14 +21,11 @@ class DataStorage {
 	 * @param string $id Unique ID of the stored file.
 	 * @param string $password Decryption key of the stored file.
 	 * @return File Decrypted file as a {@see File} object.
-	 * @throws Exception
+	 * @throws Exception Throws exception upon file-fetching failure.
 	 * @since 2.5
 	 */
 	public static function getFile(string $id, string $password) {
-		global $conf;
-
 		$storage = DataStorage::getStorage();
-
 		$storedContent = $storage->getEntryContent($id);
 		$storedMetaData = $storage->getEntryMetaData($id);
 		$storedEncryptionData = $storage->getFileEncryptionData($id);
@@ -36,19 +33,19 @@ class DataStorage {
 		$content = Encryption::decrypt(base64_decode($storedContent), $password, $storedEncryptionData['iv'][0], $storedEncryptionData['tag'][0]);
 		$metadata = Encryption::decrypt($storedMetaData, $password, $storedEncryptionData['iv'][1], $storedEncryptionData['tag'][1]);
 		$metadata = explode(' ', $metadata);
+
 		$file = new File(NULL, $id);
 		$file->setContent($content);
 
-		// Keys are lost during storage.
+		// List keys are lost during storage.
 		$file->setMetaData(['size' => base64_decode($metadata[1]), 'name' => base64_decode($metadata[0]), 'type' => base64_decode($metadata[2])]);
-
 		return $file;
 	}
 
 	/**
-	 * Get storage method.
+	 * Get storage method specified in config.
 	 *
-	 * @return FileStorage|MySQLStorage|false
+	 * @return FileStorage|MySQLStorage|false Returns the storage class specified in the config or FALSE if non is set.
 	 * @since 2.5
 	 */
 	public static function getStorage() {
@@ -94,8 +91,8 @@ class DataStorage {
 	/**
 	 * Delete all files older than 24 hours.
 	 *
-	 * @throws Exception Throws any exceptions from the storage class
-	 * @since 2.5
+	 * @throws Exception Throws any exceptions from the storage classes.
+	 * @since 2.5s
 	 */
 	public static function deleteOldFiles() {
 		$storage = DataStorage::getStorage();
@@ -106,12 +103,11 @@ class DataStorage {
 	/**
 	 * Delete a stored file
 	 *
-	 * @param $id
-	 * @return false|mixed
-	 * @throws Exception
+	 * @param string $id ID of the file to delete.
+	 * @return bool Returns TRUE on success & FALSE on failure.
+	 * @throws Exception Throws any exceptions from the storage classes.
 	 */
-	public static function deleteFile($id) {
-		global $conf;
+	public static function deleteFile(string $id) {
 		$storage = DataStorage::getStorage();
 		return $storage->deleteEntry($id);
 	}

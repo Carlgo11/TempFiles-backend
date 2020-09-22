@@ -11,6 +11,7 @@ use Exception;
  *
  * Should only be called by {@see DataStorage}!
  *
+ * @since 2.5
  * @package com\carlgo11\tempfiles\datastorage
  */
 class FileStorage implements DataInterface {
@@ -60,9 +61,8 @@ class FileStorage implements DataInterface {
 		$newFile = fopen($conf['file-path'] . $file, "w");
 
 		// Get expiry date if file already exists
-		//if ($this->entryExists($file)) $expiry = $this->getExpiry($file);
-		//else
-			$expiry = (new DateTime('+1 day'))->getTimestamp();
+		if ($this->entryExists($file)) $expiry = $this->getExpiry($file);
+		else $expiry = (new DateTime('+1 day'))->getTimestamp();
 
 		$content = [
 			'expiry' => $expiry,
@@ -77,6 +77,13 @@ class FileStorage implements DataInterface {
 		return fclose($newFile);
 	}
 
+	/**
+	 * Get expiry time of an already stored file.
+	 *
+	 * @param string $id ID of the specific file.
+	 * @return int|null Returns expiry time as a UNIX Timestamp string if one is set. Returns NULL on failure.
+	 * @since 2.5
+	 */
 	private function getExpiry(string $id) {
 		global $conf;
 		if (!$this->entryExists($id)) return NULL;
@@ -90,8 +97,9 @@ class FileStorage implements DataInterface {
 	 * Delete a stored entry (file)
 	 *
 	 * @param string $id ID of the entry to delete
-	 * @return mixed
+	 * @return bool
 	 * @throws Exception
+	 * @since 2.5
 	 */
 	public function deleteEntry(string $id) {
 		if (!$this->entryExists($id)) throw new Exception("No file found by that ID");
