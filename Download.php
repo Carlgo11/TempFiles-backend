@@ -1,10 +1,8 @@
 <?php
-require_once __DIR__ . '/src/com/carlgo11/tempfiles/Autoload.php';
-
 function getCURL(string $id, string $password) {
-	require_once __DIR__ . '/src/com/carlgo11/tempfiles/Autoload.php';
-	global $conf;
-	$d_url = sprintf($conf['api-download-url'], $id, $password);
+	# API Download URL
+	$downloadURL = filter_input(INPUT_ENV, 'TMP_API_DOWNLOAD_URL', FILTER_VALIDATE_URL, ['options' => ['default' => 'https://api.tempfiles.download/download/?id=%1$s&p=%2$s']]);
+	$d_url = sprintf($downloadURL, $id, $password);
 
 	$curl = curl_init();
 	curl_setopt_array($curl, [
@@ -20,8 +18,9 @@ function getCURL(string $id, string $password) {
 }
 
 function return404() {
+	$notFoundURL = filter_input(INPUT_ENV, 'TMP_404_URL', FILTER_VALIDATE_URL, ['options' => ['default' => 'https://tempfiles.download/download/?404=1']]);
 	header($_SERVER['SERVER_PROTOCOL'] . " 404 File Not Found");
-	header('Location: https://tempfiles.download/download/?404=1');
+	header("Location: $notFoundURL");
 	exit;
 }
 

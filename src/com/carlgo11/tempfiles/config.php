@@ -9,8 +9,6 @@ return [
 	'Encryption-Method' => getenv('TMP_ENCRYPTION_ALGO') ?: 'aes-256-gcm',
 	# Download URL
 	'download-url' => getenv('TMP_DOWNLOAD_URL') ?: 'https://d.carlgo11.com/%1$s/?p=%2$s',
-	# API Download URL
-	'api-download-url' => getenv('TMP_API_DOWNLOAD_URL') ?: 'https://api.tempfiles.download/download/?id=%1$s&p=%2$s',
 	# Storage method. [File, MySQL]
 	'storage' => getenv('TMP_STORAGE_METHOD') ?: 'File',
 	# Hashing cost used for storing deletion passwords.
