@@ -11,7 +11,7 @@ A list of available API calls can be found over at [Postman](https://documenter.
 To edit the TempFiles-Backend code you need:
 * An IDE/Editor that supports [EditorConfig](https://editorconfig.org/#download).
 * Composer
-* PHP 7.2 (Or later)
+* PHP 7.4 (Or later)
 * PHP extensions: curl, xsl, mbstring
 
 To install all dependencies, run the following command:
