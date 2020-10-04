@@ -86,7 +86,7 @@ class FileStorage implements DataInterface {
 	 */
 	private function getExpiry(string $id) {
 		global $conf;
-		if (!$this->entryExists($id)) return NULL;
+		if (!$this->entryExists($id)) return NULL; // NOTE: Will always return NULL when run inside WSL
 
 		$file = file_get_contents($conf['file-path'] . $id);
 		$data = json_decode($file, TRUE);
