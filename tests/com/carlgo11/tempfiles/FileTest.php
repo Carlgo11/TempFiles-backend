@@ -6,8 +6,7 @@ use DateTime;
 use Exception;
 use PHPUnit\Framework\TestCase;
 
-class FileTest extends TestCase
-{
+class FileTest extends TestCase {
 
 	protected $_file; // File
 	protected $_iv; // IV
@@ -52,6 +51,8 @@ class FileTest extends TestCase
 	public function testGetContent() {
 		$this->assertEquals($this->_content, $this->_file->getContent());
 	}
+
+//TODO: Create new tests for view functions
 
 //    public function testCurrentViews() {
 //        $currentViews = 0;

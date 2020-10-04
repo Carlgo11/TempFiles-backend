@@ -19,12 +19,12 @@ class Delete extends API {
 			$storedFile = DataStorage::getFile($id, $password);
 
 			if (password_verify($deletionPassword, $storedFile->getDeletionPassword()))
-				parent::addMessage('success', DataStorage::deleteFile($id));
-			else throw new Exception("Bad ID or Password.");
+				if (DataStorage::deleteFile($id)) http_response_code(200);
+				else throw new Exception("Unable to delete file");
+			else throw new Exception("Bad ID or Password");
 		} catch (Exception $e) {
-			parent::addMessage('error', $e->getMessage());
-			parent::outputJSON(500);
+			parent::outputJSON(['error' => $e->getMessage()], 500);
 		}
-		return FALSE;
+		return NULL;
 	}
 }

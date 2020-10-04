@@ -26,21 +26,21 @@ class Download extends API {
 			if (isset($file) && $file !== FALSE) {
 				$metadata = $file->getMetaData();
 				$content = base64_encode($file->getContent());
-				parent::addMessages([
-					"success" => TRUE,
+				parent::outputJSON([
 					"type" => $metadata['type'],
 					"filename" => $metadata['name'],
 					"length" => $metadata['size'],
 					"data" => $content
-				]);
-				parent::outputJSON(200);
+				], 200);
 
-				if ($file->setCurrentViews(($file->getCurrentViews() + 1))) DataStorage::setViews($file, $p, $file->getCurrentViews() + 1);
+				if ($file->getMaxViews()) { // max views > 0
+					if ($file->getMaxViews() <= $file->getCurrentViews() + 1) DataStorage::deleteFile($id);
+					else $file->setCurrentViews($file->getCurrentViews() + 1);
+				}
 			} else throw new Exception("File not found");
 		} catch (Exception $e) {
-			parent::addMessage('error', $e->getMessage());
-			parent::outputJSON(500);
+			parent::outputJSON(['error' => $e->getMessage()], 500);
 		}
-		return FALSE;
+		return NULL;
 	}
 }

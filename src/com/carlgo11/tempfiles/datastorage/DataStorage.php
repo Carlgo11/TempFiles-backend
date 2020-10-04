@@ -84,10 +84,6 @@ class DataStorage {
 		return $storage->saveEntry($encryptedFile, $password);
 	}
 
-	public static function setViews(File $file, string $password, int $views) {
-		// TODO: Implement setViews() method.
-	}
-
 	/**
 	 * Delete all files older than 24 hours.
 	 *

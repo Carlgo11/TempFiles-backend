@@ -11,8 +11,7 @@ use Exception;
  * @package com\carlgo11\tempfiles
  * @since 2.2
  */
-class File
-{
+class File {
 
 	protected $_id;
 	protected $_content;
@@ -107,30 +106,18 @@ class File
 	 * @since 2.2
 	 */
 	public function getCurrentViews() {
-		return (int) $this->_currentViews;
+		return (int)$this->_currentViews;
 	}
 
 	/**
 	 * Sets the current views/downloads of the file.
 	 *
 	 * @param int $views New views/downloads of the file.
-	 * @return boolean Returns TRUE if the action was successfully executed. Returns FALSE if the file was deleted. Returns NULL if currentsViews wasn't set.
 	 * @since 2.2
 	 * @since 2.4 Switched from deleteFile() in DataStorage to FileStorage.
 	 */
 	public function setCurrentViews(int $views) {
-		if ($this->_maxViews != 0) {
-			if ($views < $this->_maxViews) {
-				$this->_currentViews = $views;
-				return TRUE;
-			} else if ($views >= $this->_maxViews) {
-				//TODO: Fix broken calls to FileStorage
-				$fileStorage = new FileStorage();
-				$fileStorage->deleteFile($this->_id);
-				unset($fileStorage);
-			}
-		}
-		return FALSE;
+		$this->_currentViews = $views;
 	}
 
 	/**
