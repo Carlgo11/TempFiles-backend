@@ -3,23 +3,28 @@ RUN apk add --no-cache composer
 USER 1000:1000
 COPY --chown=1000:1000 ./ /test
 WORKDIR /test
-RUN composer install --no-plugins --no-scripts --no-cache -n
+RUN composer install --no-plugins --no-scripts --no-cache -n -o -v
 RUN ./vendor/bin/phpunit --configuration phpunit.xml
 
 FROM php:7.4-alpine AS Build
 RUN apk add --no-cache composer;
-WORKDIR /app
+WORKDIR /api
 RUN chown 1000:1000 .
 USER 1000:1000
 COPY --chown=1000:1000 src ./src
 COPY --chown=1000:1000 public ./public
 COPY --chown=1000:1000 ["composer.json", "robots.txt", "Download.php", "./"]
-RUN composer install --no-dev --no-plugins --no-scripts --no-cache -n
+RUN composer install --no-dev --no-plugins --no-scripts --no-cache -n -o -v
 RUN rm composer.json
+
+USER ROOT
+WORKDIR /download
+COPY --chown=1000:1000 ["robots.txt", "Download.php", "./"]
 
 FROM webdevops/php-nginx:7.4-alpine AS Run
 WORKDIR /app
-COPY --from=Build --chown=1000:1000 /app /app
+COPY --from=Build --chown=1000:1000 /api /api
+COPY --from=Build --chown=1000:1000 /download /download
 
 ENV FPM_PM_START_SERVERS 2
 ENV FPM_PM_MIN_SPARE_SERVERS 1
