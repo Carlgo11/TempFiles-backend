@@ -17,10 +17,8 @@ class Download extends API {
 		try {
 			if ($method !== 'GET') throw new Exception("Bad method. Use GET.");
 
-			$id = Misc::getVar('id');
+			$id = filter_var(Misc::getVar('id'), FILTER_VALIDATE_REGEXP, ["options" => ['regexp' => '/^D([0-9]|[A-z]){13}/']]);
 			$p = Misc::getVar('p');
-
-			include_once __DIR__ . '/../datastorage/DataStorage.php';
 			$file = DataStorage::getFile($id, $p);
 
 			if (isset($file) && $file !== FALSE) {

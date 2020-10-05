@@ -37,7 +37,6 @@ class Upload extends API {
 
 				$file->setContent(file_get_contents($fileArray['tmp_name']));
 
-				include_once __DIR__ . '/../datastorage/DataStorage.php';
 				DataStorage::saveFile($file, $password);
 
 				// Full URI to download the file

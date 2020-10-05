@@ -10,10 +10,14 @@ class Delete extends API {
 
 	/**
 	 * Delete constructor.
+	 *
+	 * @param string $method
 	 */
-	public function __construct() {
+	public function __construct(string $method) {
 		try {
-			$id = Misc::getVar('id');
+			if ($method !== 'DELETE') throw new Exception("Bad method. Use DELETE.");
+
+			$id = filter_var(Misc::getVar('id'), FILTER_VALIDATE_REGEXP, ["options" => ['regexp' => '/^D([0-9]|[A-z]){13}/']]);
 			$password = Misc::getVar('p');
 			$deletionPassword = Misc::getVar('delete');
 			$storedFile = DataStorage::getFile($id, $password);
