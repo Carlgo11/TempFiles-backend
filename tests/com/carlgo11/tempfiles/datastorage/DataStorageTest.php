@@ -15,7 +15,7 @@ class DataStorageTest extends TestCase {
 			$file->setContent(random_bytes(2.097 * 10 ^ 6)); // Generate random 2MB content
 			$file->setMetaData(['size' => 2048, 'name' => 'test.jpg', 'type' => 'image/jpeg']);
 			$file->setDeletionPassword(Misc::generatePassword(12, 32));
-
+			print("Saving file...");
 			$this->assertTrue(DataStorage::saveFile($file, $password));
 			sleep(1);
 			print("Fetching file...");

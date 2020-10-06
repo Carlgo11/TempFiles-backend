@@ -61,8 +61,7 @@ class FileStorage implements DataInterface {
 		$newFile = fopen($conf['file-path'] . $file, "w");
 
 		// Get expiry date if file already exists
-		if ($this->entryExists($file)) $expiry = $this->getExpiry($file);
-		else $expiry = (new DateTime('+1 day'))->getTimestamp();
+		if (($expiry = $this->getExpiry($file)) === NULL) $expiry = (new DateTime('+1 day'))->getTimestamp();
 
 		$content = [
 			'expiry' => $expiry,
@@ -85,11 +84,12 @@ class FileStorage implements DataInterface {
 	 * @since 2.5
 	 */
 	private function getExpiry(string $id) {
+		if (!$this->entryExists($id)) return NULL;
 		global $conf;
-		if (!$this->entryExists($id)) return NULL; // NOTE: Will always return NULL when run inside WSL
 
 		$file = file_get_contents($conf['file-path'] . $id);
 		$data = json_decode($file, TRUE);
+		if ($data === NULL) return NULL;
 		return $data['expiry'];
 	}
 
