@@ -18,41 +18,39 @@ class Upload extends API {
 		global $conf;
 		try {
 			if ($method !== 'POST') throw new Exception("Bad method. Use POST.");
+			if (!isset($_FILES['file']) || $_FILES['file'] === NULL) throw new Exception("No file uploaded.");
 
-			if (isset($_FILES['file']) && $_FILES['file'] !== NULL) {
-				$fileArray = $_FILES['file'];
-				$file = new File($fileArray);
+			$fileArray = $_FILES['file'];
+			$file = new File($fileArray);
 
-				if (Misc::getVar('maxviews') !== NULL) $file->setMaxViews(Misc::getVar('maxviews'));
-				if (Misc::getVar('password') !== NULL) $password = Misc::getVar('password');
-				else $password = Misc::generatePassword(6, 20);
-
-				$file->setDeletionPassword(Misc::generatePassword(12, 32));
-
-				$file->setMetaData([
-					'size' => $fileArray['size'],
-					'name' => rawurlencode($fileArray['name']),
-					'type' => $fileArray['type']
-				]);
-
-				$file->setContent(file_get_contents($fileArray['tmp_name']));
-
-				DataStorage::saveFile($file, $password);
-
-				// Full URI to download the file
-				$completeURL = sprintf($conf['download-url'], $file->getID(), $password);
-
-				$output = [
-					'url' => $completeURL,
-					'id' => $file->getID(),
-					'deletepassword' => $file->getDeletionPassword()];
-
-				if (Misc::getVar('password') === NULL) $output['password'] = $password;
-				if ($file->getMaxViews() !== NULL) $output['maxviews'] = (int)$file->getMaxViews();
-
-				syslog(LOG_INFO, $output['id'] . " created.");
-				return parent::outputJSON($output, 201);
+			if (Misc::getVar('maxviews') !== NULL) {
+				$file->setMaxViews(Misc::getVar('maxviews'));
+				$output['maxviews'] = (int)$file->getMaxViews();
 			}
+
+			if (Misc::getVar('password') !== NULL) $password = Misc::getVar('password');
+			else {
+				$password = Misc::generatePassword(6, 20);
+				$output['password'] = $password;
+			}
+
+			$file->setDeletionPassword(Misc::generatePassword(12, 32));
+			$file->setContent(file_get_contents($fileArray['tmp_name']));
+			$file->setMetaData([
+				'size' => $fileArray['size'],
+				'name' => rawurlencode($fileArray['name']),
+				'type' => $fileArray['type']
+			]);
+
+			if (!DataStorage::saveFile($file, $password)) throw new Exception("File-storing failed.");
+
+			$output = [
+				'url' => sprintf($conf['download-url'], $file->getID(), $password),
+				'id' => $file->getID(),
+				'deletepassword' => $file->getDeletionPassword()];
+
+			syslog(LOG_INFO, $output['id'] . " created.");
+			return parent::outputJSON($output, 201);
 		} catch (Exception $e) {
 			parent::outputJSON(['error' => $e->getMessage()], 500);
 		}

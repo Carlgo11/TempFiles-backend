@@ -7,6 +7,8 @@ use Exception;
 
 /**
  * File class
+ * Stores all file-related data during a file-upload/-download operation.
+ * This data is NOT encrypted. See {@see EncryptedFile} for the encrypted equivalent.
  *
  * @package com\carlgo11\tempfiles
  * @since 2.2
@@ -165,7 +167,7 @@ class File {
 	/**
 	 * Gets the metadata of the file if supplied.
 	 *
-	 * @param string $type Array key of the desired value.
+	 * @param string|null $type Array key of the desired value.
 	 * @return string|array Returns data of the desired array key if a $type is supplied, otherwise the entire array.
 	 * @since 2.2
 	 */
