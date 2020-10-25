@@ -22,7 +22,7 @@ WORKDIR /download
 COPY --chown=1000:1000 ["robots.txt", "Download.php", "./"]
 
 FROM webdevops/php-nginx:7.4-alpine AS Run
-WORKDIR /app
+WORKDIR /api
 COPY --from=Build --chown=1000:1000 /api /api
 COPY --from=Build --chown=1000:1000 /download /download
 
