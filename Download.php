@@ -39,7 +39,7 @@ if ($error !== "") {
 	return404();
 }
 
-if ($response->success) {
+if ($response->data) {
 
 	// Set headers
 	header("Content-Description: File Transfer");
