@@ -17,7 +17,7 @@ class Upload extends API {
 	function __construct(string $method) {
 		global $conf;
 		try {
-			if ($method !== 'POST') throw new Exception("Bad method. Use POST.");
+			if ($method !== 'POST') throw new Exception("Bad method. Use POST. (currently: $method)");
 			if (!isset($_FILES['file']) || $_FILES['file'] === NULL) throw new Exception("No file uploaded.");
 
 			$fileArray = $_FILES['file'];
