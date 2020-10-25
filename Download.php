@@ -1,20 +1,24 @@
 <?php
-function getCURL(string $id, string $password) {
-	# API Download URL
-	$downloadURL = filter_input(INPUT_ENV, 'TMP_API_DOWNLOAD_URL', FILTER_VALIDATE_URL, ['options' => ['default' => 'https://api.tempfiles.download/download/?id=%1$s&p=%2$s']]);
-	$d_url = sprintf($downloadURL, $id, $password);
 
-	$curl = curl_init();
-	curl_setopt_array($curl, [
-		CURLOPT_URL => $d_url,
-		CURLOPT_RETURNTRANSFER => TRUE,
-		CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_2,
-		CURLOPT_CUSTOMREQUEST => 'GET',
-		CURLOPT_HTTPHEADER => [
-			"cache-control: no-cache"
-		]
-	]);
-	return $curl;
+function download($file_source, $file_target) {
+	$rh = fopen($file_source, 'rb');
+	$wh = fopen($file_target, 'w+b');
+	if (!$rh || !$wh) {
+		return false;
+	}
+
+	while (!feof($rh)) {
+		if (fwrite($wh, fread($rh, 4096)) === FALSE) {
+			return false;
+		}
+		echo '';
+		flush();
+	}
+
+	fclose($rh);
+	fclose($wh);
+
+	return true;
 }
 
 function return404() {
@@ -28,16 +32,20 @@ $url = explode('/', strtoupper($_SERVER['REQUEST_URI']));
 $id = filter_var($url[1]);
 $password = filter_input(INPUT_GET, "p");
 
-$curl = getCURL($id, $password);
+# API Download URL
+$downloadURL = filter_input(INPUT_ENV, 'TMP_API_DOWNLOAD_URL', FILTER_VALIDATE_URL, ['options' => ['default' => 'https://api.tempfiles.download/download/?id=%1$s&p=%2$s']]);
+$d_url = sprintf($downloadURL, $id, $password);
+
+$result = download($d_url, "/tmp/$id.tmp");
+if (!$result)
+	return404();
 
 // Execute cURL command and get response data
-$response = json_decode(curl_exec($curl));
+$response = json_decode(curl_exec(file_get_contents("/tmp/$id.tmp")));
 
-$error = curl_error($curl);
-if ($error !== "") {
-	error_log($error);
-	return404();
-}
+unlink("/tmp/$id.tmp");
+
+
 
 if ($response->data) {
 
