@@ -24,7 +24,7 @@ function return404() {
 	exit;
 }
 
-$url = explode('/', strtolower($_SERVER['REQUEST_URI']));
+$url = explode('/', strtoupper($_SERVER['REQUEST_URI']));
 $id = filter_var($url[1]);
 $password = filter_input(INPUT_GET, "p");
 
