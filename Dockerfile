@@ -17,14 +17,9 @@ COPY --chown=1000:1000 ["composer.json", "robots.txt", "Download.php", "./"]
 RUN composer install --no-dev --no-plugins --no-scripts --no-cache -n -o -v
 RUN rm composer.json
 
-USER ROOT
-WORKDIR /download
-COPY --chown=1000:1000 ["robots.txt", "Download.php", "./"]
-
 FROM webdevops/php-nginx:7.4-alpine AS Run
 WORKDIR /api
 COPY --from=Build --chown=1000:1000 /api /api
-COPY --from=Build --chown=1000:1000 /download /download
 
 ENV FPM_PM_START_SERVERS 2
 ENV FPM_PM_MIN_SPARE_SERVERS 1

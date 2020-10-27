@@ -89,7 +89,7 @@ class FileStorage implements DataInterface {
 
 		$file = file_get_contents($conf['file-path'] . $id);
 		$data = json_decode($file, TRUE);
-		if ($data === NULL) return NULL;
+		if ($data === NULL || $data === FALSE) return NULL;
 		return $data['expiry'];
 	}
 
