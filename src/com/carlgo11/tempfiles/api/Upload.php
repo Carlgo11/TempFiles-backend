@@ -22,6 +22,7 @@ class Upload extends API {
 
 			$fileArray = $_FILES['file'];
 			$file = new File($fileArray);
+			$output = [];
 
 			if (Misc::getVar('maxviews') !== NULL) {
 				$file->setMaxViews(Misc::getVar('maxviews'));
@@ -44,10 +45,10 @@ class Upload extends API {
 
 			if (!DataStorage::saveFile($file, $password)) throw new Exception("File-storing failed.");
 
-			$output = [
+			$output = array_merge($output, [
 				'url' => sprintf($conf['download-url'], $file->getID(), $password),
 				'id' => $file->getID(),
-				'deletepassword' => $file->getDeletionPassword()];
+				'deletepassword' => $file->getDeletionPassword()]);
 
 			syslog(LOG_INFO, $output['id'] . " created.");
 			return parent::outputJSON($output, 201);
