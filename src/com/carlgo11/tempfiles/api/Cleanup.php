@@ -21,7 +21,7 @@ class Cleanup extends API {
 			DataStorage::deleteOldFiles();
 			http_response_code(202);
 		} catch (Exception $e) {
-			parent::outputJSON(['error' => $e->getMessage()], 500);
+			parent::outputJSON(['error' => $e->getMessage()], 400);
 		}
 	}
 }

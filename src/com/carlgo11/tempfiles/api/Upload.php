@@ -52,7 +52,7 @@ class Upload extends API {
 			syslog(LOG_INFO, $output['id'] . " created.");
 			return parent::outputJSON($output, 201);
 		} catch (Exception $e) {
-			parent::outputJSON(['error' => $e->getMessage()], 500);
+			parent::outputJSON(['error' => $e->getMessage()], 400);
 		}
 		return NULL;
 	}
