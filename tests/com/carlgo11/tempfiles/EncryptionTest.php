@@ -44,7 +44,7 @@ class EncryptionTest extends TestCase
 		$maxViews = 9;
 		$password = '1VMy5E!71-/R8acDuO8';
 
-		$encrypted = Encryption::encryptFileDetails($metadata, $delpass, $currentViews, $maxViews, $password);
+		$encrypted = Encryption::encryptFileDetails($metadata, password_hash($delpass, PASSWORD_BCRYPT), $currentViews, $maxViews, $password);
 
 		// Test $encrypted output
 		$this->assertIsArray($encrypted);
