@@ -35,7 +35,10 @@ class Upload extends API {
 				$output['password'] = $password;
 			}
 
-			$file->setDeletionPassword(Misc::generatePassword(12, 32));
+			$deletionPassword = Misc::generatePassword(12, 32);
+			$options = ['options' => filter_var($conf['hash-cost'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 10, 'max_range' => 35]])];
+			$deletionPass = password_hash($deletionPassword, PASSWORD_BCRYPT, $options);
+			$file->setDeletionPassword($deletionPass);
 			$file->setContent(file_get_contents($fileArray['tmp_name']));
 			$file->setMetaData([
 				'size' => $fileArray['size'],
@@ -48,7 +51,7 @@ class Upload extends API {
 			$output = array_merge($output, [
 				'url' => sprintf($conf['download-url'], $file->getID(), $password),
 				'id' => $file->getID(),
-				'deletepassword' => $file->getDeletionPassword()]);
+				'deletepassword' => $deletionPassword]);
 
 			syslog(LOG_INFO, $output['id'] . " created.");
 			return parent::outputJSON($output, 201);

@@ -30,6 +30,10 @@ class FileStorage implements DataInterface {
 		return file_exists($conf['file-path'] . $id);
 	}
 
+	/**
+	 * @param $id
+	 * @return String|null Returns an encrypted array (split ' ') containing: [0 => name, 1=> size, 2=> type, 3=> deletion password hash, 4=> view array]
+	 */
 	public function getEntryMetaData($id) {
 		global $conf;
 		if (!$this->entryExists($id)) return NULL;

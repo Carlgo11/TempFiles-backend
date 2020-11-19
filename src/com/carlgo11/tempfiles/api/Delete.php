@@ -15,16 +15,13 @@ class Delete extends API {
 	 */
 	public function __construct(string $method) {
 		try {
-			echo "hello world";
 			if ($method !== 'DELETE') throw new Exception("Bad method. Use DELETE.");
-			echo "hi?";
 			$id = filter_var(Misc::getVar('id'), FILTER_VALIDATE_REGEXP, ["options" => ['regexp' => '/^D([0-9]|[A-z]){13}/']]);
-			$password = Misc::getVar('p');
+			$p = Misc::getVar('p');
+			$file = DataStorage::getFile($id, $p);
 			$deletionPassword = Misc::getVar('delete');
-			echo "fetching file";
-			$storedFile = DataStorage::getFile($id, $password);
 
-			if (password_verify($deletionPassword, $storedFile->getDeletionPassword()))
+			if (password_verify($deletionPassword, $file->getDeletionPassword()))
 				if (DataStorage::deleteFile($id)) http_response_code(200);
 				else throw new Exception("Unable to delete file");
 			else throw new Exception("Bad ID or Password");

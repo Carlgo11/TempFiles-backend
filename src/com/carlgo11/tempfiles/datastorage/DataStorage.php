@@ -33,9 +33,9 @@ class DataStorage {
 		$content = Encryption::decrypt(base64_decode($storedContent), $password, $storedEncryptionData['iv'][0], $storedEncryptionData['tag'][0]);
 		$metadata = Encryption::decrypt($storedMetaData, $password, $storedEncryptionData['iv'][1], $storedEncryptionData['tag'][1]);
 		$metadata = explode(' ', $metadata);
-
 		$file = new File(NULL, $id);
 		$file->setContent($content);
+		$file->setDeletionPassword(base64_decode($metadata[3]));
 
 		// List keys are lost during storage.
 		$file->setMetaData(['size' => base64_decode($metadata[1]), 'name' => base64_decode($metadata[0]), 'type' => base64_decode($metadata[2])]);
@@ -71,8 +71,6 @@ class DataStorage {
 	 * @since 2.5
 	 */
 	public static function saveFile(File $file, string $password) {
-		global $conf;
-
 		$storage = DataStorage::getStorage();
 
 		include_once __DIR__ . '/../EncryptedFile.php';
@@ -80,6 +78,8 @@ class DataStorage {
 		$encryptedFile->setFileContent($file->getContent(), $password);
 		$encryptedFile->setFileMetaData($file->getMetaData(), $file, $password);
 		$encryptedFile->setID($file->getID());
+
+		var_dump($file->getDeletionPassword());
 
 		return $storage->saveEntry($encryptedFile, $password);
 	}
