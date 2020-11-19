@@ -79,8 +79,6 @@ class DataStorage {
 		$encryptedFile->setFileMetaData($file->getMetaData(), $file, $password);
 		$encryptedFile->setID($file->getID());
 
-		var_dump($file->getDeletionPassword());
-
 		return $storage->saveEntry($encryptedFile, $password);
 	}
 

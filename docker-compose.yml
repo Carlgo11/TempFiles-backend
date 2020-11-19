@@ -7,6 +7,7 @@ services:
       - "5393:5393"
     volumes:
       - ./resources/nginx.conf:/opt/docker/etc/nginx/vhost.conf
+      - /dev/null:/opt/docker/etc/nginx/vhost.common.d/10-location-root.conf
 
     environment:
       - PHP_POST_MAX_SIZE=128M
