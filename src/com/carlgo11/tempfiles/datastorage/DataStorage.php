@@ -5,6 +5,7 @@ namespace com\carlgo11\tempfiles\datastorage;
 use com\carlgo11\tempfiles\EncryptedFile;
 use com\carlgo11\tempfiles\Encryption;
 use com\carlgo11\tempfiles\File;
+use DateTime;
 use Exception;
 
 /**
@@ -86,12 +87,14 @@ class DataStorage {
 	 * Delete all files older than 24 hours.
 	 *
 	 * @throws Exception Throws any exceptions from the storage classes.
-	 * @since 2.5s
+	 * @since 2.5
 	 */
 	public static function deleteOldFiles() {
 		$storage = DataStorage::getStorage();
-		foreach ($storage->listEntries() as $entry)
-			DataStorage::deleteFile($entry);
+		foreach ($storage->listEntries() as $entry) {
+			if ($storage->getEntryExpiry($entry) <= (new DateTime())->getTimeStamp())
+				DataStorage::deleteFile($entry);
+		}
 	}
 
 	/**

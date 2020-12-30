@@ -3,6 +3,7 @@
 namespace com\carlgo11\tempfiles\api;
 
 use com\carlgo11\tempfiles\datastorage\DataStorage;
+use com\carlgo11\tempfiles\exception\BadMethod;
 use com\carlgo11\tempfiles\File;
 use com\carlgo11\tempfiles\Misc;
 use Exception;
@@ -17,7 +18,7 @@ class Upload extends API {
 	function __construct(string $method) {
 		global $conf;
 		try {
-			if ($method !== 'POST') throw new Exception("Bad method. Use POST.");
+			if ($method !== 'POST') throw new BadMethod("Bad method. Use POST.");
 			if (!isset($_FILES['file']) || $_FILES['file'] === NULL) throw new Exception("No file uploaded.");
 
 			$fileArray = $_FILES['file'];

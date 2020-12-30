@@ -3,6 +3,8 @@
 namespace com\carlgo11\tempfiles\api;
 
 use com\carlgo11\tempfiles\datastorage\DataStorage;
+use com\carlgo11\tempfiles\exception\BadMethod;
+use com\carlgo11\tempfiles\exception\MissingEntry;
 use com\carlgo11\tempfiles\Misc;
 use Exception;
 
@@ -15,7 +17,7 @@ class Download extends API {
 	 */
 	public function __construct(string $method) {
 		try {
-			if ($method !== 'GET') throw new Exception("Bad method. Use GET.");
+			if ($method !== 'GET') throw new BadMethod("Bad method. Use GET.");
 
 			$id = filter_var(Misc::getVar('id'), FILTER_VALIDATE_REGEXP, ["options" => ['regexp' => '/^D([0-9]|[A-z]){13}/']]);
 			$p = Misc::getVar('p');
@@ -35,7 +37,7 @@ class Download extends API {
 					if ($file->getMaxViews() <= $file->getCurrentViews() + 1) DataStorage::deleteFile($id);
 					else $file->setCurrentViews($file->getCurrentViews() + 1);
 				}
-			} else throw new Exception("File not found");
+			} else throw new MissingEntry("File not found");
 		} catch (Exception $e) {
 			parent::outputJSON(['error' => $e->getMessage()], 400);
 		}

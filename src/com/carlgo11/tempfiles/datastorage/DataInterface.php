@@ -3,6 +3,7 @@
 namespace com\carlgo11\tempfiles\datastorage;
 
 use com\carlgo11\tempfiles\EncryptedFile;
+use com\carlgo11\tempfiles\exception\MissingEntry;
 
 interface DataInterface {
 
@@ -38,6 +39,16 @@ interface DataInterface {
 	 * @since 2.5
 	 */
 	public function deleteEntry(string $id);
+
+	/**
+	 * Get the expiry date of an entry.
+	 *
+	 * @param string $id ID of the entry.
+	 * @return string Returns the timestamp as a string.
+	 * @throws MissingEntry Throws Missing Entry exception if no entry with the ID exists.
+	 * @since 2.5
+	 */
+	public function getEntryExpiry(string $id);
 
 	/**
 	 * @return mixed

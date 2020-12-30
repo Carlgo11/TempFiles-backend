@@ -3,6 +3,7 @@
 namespace com\carlgo11\tempfiles\api;
 
 use com\carlgo11\tempfiles\datastorage\DataStorage;
+use com\carlgo11\tempfiles\exception\BadMethod;
 use Exception;
 
 class Cleanup extends API {
@@ -16,8 +17,6 @@ class Cleanup extends API {
 	 */
 	public function __construct(string $method) {
 		try {
-			if ($method !== 'PURGE') throw new Exception("Bad HTTP method. Use PURGE.");
-
 			DataStorage::deleteOldFiles();
 			http_response_code(202);
 		} catch (Exception $e) {

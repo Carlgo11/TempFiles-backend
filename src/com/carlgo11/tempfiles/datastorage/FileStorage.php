@@ -3,6 +3,7 @@
 namespace com\carlgo11\tempfiles\datastorage;
 
 use com\carlgo11\tempfiles\EncryptedFile;
+use com\carlgo11\tempfiles\exception\MissingEntry;
 use DateTime;
 use Exception;
 
@@ -50,6 +51,23 @@ class FileStorage implements DataInterface {
 		$file = file_get_contents($conf['file-path'] . $id);
 		$data = json_decode($file, TRUE);
 		return ['iv' => $data['iv'], 'tag' => $data['tag']];
+	}
+
+	/**
+	 * Get the expiry date of an entry.
+	 *
+	 * @param string $id ID of the entry.
+	 * @return string Returns the timestamp as a string.
+	 * @throws MissingEntry Throws Missing Entry exception if no entry with the ID exists.
+	 * @since 2.5
+	 */
+	public function getEntryExpiry(string $id) {
+		global $conf;
+		if(!$this->entryExists($id)) throw new MissingEntry();
+
+		$file = file_get_contents($conf['file-path'] . $id);
+		$data = json_decode($file, TRUE);
+		return $data['expiry'];
 	}
 
 	/**
