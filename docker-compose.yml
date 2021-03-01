@@ -6,10 +6,6 @@ services:
       - "5392:5392"
       - "5393:5393"
     volumes:
-      - ./resources/nginx.conf:/opt/docker/etc/nginx/vhost.conf
-      - /dev/null:/opt/docker/etc/nginx/vhost.common.d/10-location-root.conf
-
-    environment:
-      - PHP_POST_MAX_SIZE=128M
-      - PHP_UPLOAD_MAX_FILESIZE=128M
+      - ./resources/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./resources/php.ini:/usr/local/etc/php/conf.d/php.ini:ro
     restart: unless-stopped
