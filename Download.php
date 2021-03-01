@@ -7,8 +7,8 @@ require __DIR__ . '/src/com/carlgo11/tempfiles/autoload.php';
 function return404() {
 	$notFoundURL = filter_input(INPUT_ENV, 'TMP_404_URL', FILTER_VALIDATE_URL, ['options' => ['default' => 'https://tempfiles.download/download/?404=1']]);
 	header($_SERVER['SERVER_PROTOCOL'] . " 404 File Not Found");
-	//header("Location: $notFoundURL");
-	//exit;
+	header("Location: $notFoundURL");
+	exit;
 }
 
 $url = explode('/', strtoupper($_SERVER['REQUEST_URI']));
