@@ -1,10 +1,10 @@
-#FROM php:7.4-alpine AS Test
-#RUN apk add --no-cache composer
-#USER 1000:1000
-#COPY --chown=1000:1000 ./ /test
-#WORKDIR /test
-#RUN composer install --no-plugins --no-scripts --no-cache -n -o -v
-#RUN ./vendor/bin/phpunit --configuration phpunit.xml
+FROM php:7.4-alpine AS Test
+RUN apk add --no-cache composer
+USER 1000:1000
+COPY --chown=1000:1000 ./ /test
+WORKDIR /test
+RUN composer install --no-plugins --no-scripts --no-cache -n -o -v
+RUN ./vendor/bin/phpunit --configuration phpunit.xml
 
 FROM php:7.4-alpine AS Build
 RUN apk add --no-cache composer;
