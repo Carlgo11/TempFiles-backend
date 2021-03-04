@@ -1,23 +1,9 @@
 # TempFiles Backend
-[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/Carlgo11/Tempfiles-backend/Test%20PHPUnit?style=for-the-badge)](https://github.com/Carlgo11/Tempfiles-backend/actions)
 [![GitHub](https://img.shields.io/github/license/carlgo11/tempfiles-backend?style=for-the-badge)](https://github.com/Carlgo11/TempFiles-backend/blob/master/LICENSE)
 [![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/carlgo11/tempfiles-backend?style=for-the-badge)](https://github.com/Carlgo11/TempFiles-backend/releases)
 [![Docker](https://img.shields.io/badge/Docker-Download-2496ed?style=for-the-badge&logo=docker&logoColor=fff)](https://hub.docker.com/r/carlgo11/tempfiles-backend)
 ## API calls :mega:
 A list of available API calls can be found over at [Postman](https://documenter.getpostman.com/view/1675224/SW7ezkZn).
-
-## Contributing :writing_hand:
-
-To edit the TempFiles-Backend code you need:
-* An IDE/Editor that supports [EditorConfig](https://editorconfig.org/#download).
-* Composer
-* PHP 7.4 (Or later)
-* PHP extensions: curl, xsl, mbstring
-
-To install all dependencies, run the following command:
-```BASH
-composer install
-```
 
 ## Deployment via Docker Compose
 1. Set up a new directory for TempFiles  
@@ -26,11 +12,12 @@ composer install
     cd /opt/tempfiles
     ```
 
-1. Copy nginx.conf.  
+1. Copy the resource files.
     Set up a virtual server config for nginx to use.
-    ```bash
+    ```BASH
        mkdir resources
        curl https://raw.githubusercontent.com/Carlgo11/TempFiles-backend/master/resources/nginx.conf > nginx.conf
+       curl https://raw.githubusercontent.com/Carlgo11/TempFiles-backend/master/resources/php.ini > php.ini
     ```
 
 1. Create a docker-compose.yml file.  
@@ -66,14 +53,14 @@ composer install
             ssl_ciphers 'CDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384';
 
             # 100M = Total file upload limit of 100 MegaBytes.
-            client_body_buffer_size 100M;
-            client_max_body_size 100M;
+            client_body_buffer_size 128M;
+            client_max_body_size 128M;
 
             location / {
                     proxy_pass http://127.0.0.1:5392;
             }
     }
-   
+
    # Download
    server {
            listen 443 ssl http2;
