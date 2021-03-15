@@ -28,7 +28,7 @@ class Delete extends API {
 				else throw new Exception("Unable to delete file");
 			else throw new MissingEntry("Bad ID or Password");
 		} catch (Exception $e) {
-			parent::outputJSON(['error' => $e->getMessage()], 400);
+			parent::outputJSON(['error' => $e->getMessage()], $e->getCode() ?: 400);
 		}
 		return NULL;
 	}

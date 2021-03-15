@@ -39,7 +39,7 @@ class Download extends API {
 				}
 			} else throw new MissingEntry("File not found");
 		} catch (Exception $e) {
-			parent::outputJSON(['error' => $e->getMessage()], 400);
+			parent::outputJSON(['error' => $e->getMessage()], $e->getCode() ?: 400);
 		}
 		return NULL;
 	}
