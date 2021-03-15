@@ -137,11 +137,10 @@ Here's how to set up TempFiles-Backend directly on a Linux server:
 ## Environment variables
 |Name|Default Value|Type|Description|
 |----|-------------|----|-----------|
-TMP_PATH|/tmp/tempfiles|String|Path where encrypted files should be saved to|
-|TMP_MAX_SIZE|128MB|String|Max file size|
+|TMP_PATH|/tmp/tempfiles|String|Path where encrypted files should be saved to|
+|TMP_MAX_SIZE|128M|String|Max file size|
 |TMP_ENCRYPTION_ALGO|aes-256-gcm|String|File encryption algorithm|
 |TMP_STORAGE_METHOD|File|String|Storage method. Available methods are: File, MySQL|
 |TMP_HASH_COST|10|Integer|Bcrypt hashing cost. Only used for hashing deletion password.|
-|TMP_API_DOWNLOAD_URL|https://api.tempfiles.download/download/?id=%1$s&p=%2$s|String|URL used by Download.php to fetch a file from the API. `%1$s`=ID `%2$s`=Password|
 |TMP_DOWNLOAD_URL|https://d.carlgo11.com/%1$s/?p=%2$s|String|URL where the user can download the file. `%1$s`=ID `%2$s`=Password|
 |TMP_404_URL|https://tempfiles.download/download/?404=1|String|URL to redirect to if a file can't be downloaded.|
