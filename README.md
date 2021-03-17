@@ -21,61 +21,64 @@ A list of available API calls can be found over at [Postman](https://documenter.
     ```
 
 1. Create a docker-compose.yml file.  
-    ```BASH
-    nano docker-compose.yml
-   ```
+  	```BASH
+  	nano docker-compose.yml
+  	```
+
    And paste in the following:
-    ```YAML 
-    version: '3.2'
-    services:
-      tmpfiles:
-        image: carlgo11/tempfiles-backend
-        ports:
-          - "5392:5392"
-          - "5393:5393"
-        volumes:
-          - ./resources/nginx.conf:/opt/docker/etc/nginx/vhost.conf
-        environment:
-          - PHP_POST_MAX_SIZE=128M
-          - PHP_UPLOAD_MAX_FILESIZE=128M
-        restart: always
-    ```
-3. Set up a second webserver as a reverse proxy for the docker container(s).  
-    _This can be done with Apache or Nginx. Here's an example config for Nginx:_
-    ```NGINX
-    # API
-    server {
-            listen 443 ssl http2;
-            server_name api.tempfiles.download;
-    
-            ssl_certificate <certificate path>;
-            ssl_certificate_key <certificate key path>;
-            ssl_ciphers 'CDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384';
-
-            # 100M = Total file upload limit of 100 MegaBytes.
-            client_body_buffer_size 128M;
-            client_max_body_size 128M;
-
-            location / {
-                    proxy_pass http://127.0.0.1:5392;
-            }
-    }
-
-   # Download
-   server {
-           listen 443 ssl http2;
-           server_name d.tempfiles.download;
-   
-           ssl_certificate <certificate path>;
-           ssl_certificate_key <certificate key path>;
-           ssl_ciphers 'CDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384';
-
-           location / {
-                   proxy_pass http://127.0.0.1:5393;
-           }
-   }
+   ```YAML 
+   version: '3.2'
+   services:
+     tmpfiles:
+       image: carlgo11/tempfiles-backend
+       ports:
+         - "5392:5392"
+         - "5393:5393"
+       volumes:
+         - ./resources/nginx.conf:/opt/docker/etc/nginx/vhost.conf
+       environment:
+         - PHP_POST_MAX_SIZE=128M
+         - PHP_UPLOAD_MAX_FILESIZE=128M
+       restart: always
    ```
-4. Run the container
+
+1. Set up a second webserver as a reverse proxy for the docker container(s).  
+   _This can be done with Apache or Nginx. Here's an example config for Nginx:_
+   ```NGINX
+	# API
+	server {
+		listen 443 ssl http2;
+		server_name api.tempfiles.download;
+	
+		ssl_certificate <certificate path>;
+		ssl_certificate_key <certificate key path>;
+		ssl_ciphers 'CDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384';
+	
+		# 100M = Total file upload limit of 100 MegaBytes.
+		client_body_buffer_size 128M;
+		client_max_body_size 128M;
+	
+		location / {
+			proxy_pass http://127.0.0.1:5392;
+		}
+	}
+
+	# Download
+	server {
+		listen 443 ssl http2;
+		server_name d.tempfiles.download;
+
+		ssl_certificate <certificate path>;
+		ssl_certificate_key <certificate key path>;
+		ssl_ciphers 'CDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-P OLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384';
+
+		location / {
+			proxy_pass http://127.0.0.1:5393;
+		}
+	}
+   ```
+
+1. Run the container
    ```BASH
    docker-compose up -d
    ```
@@ -91,18 +94,18 @@ Here's how to set up TempFiles-Backend directly on a Linux server:
    sudo apt install nginx php php-fpm composer php-curl php-mbstring git
    ```
 
-2. Download the source code  
+1. Download the source code  
    ```BASH
    git clone https://github.com/Carlgo11/Tempfiles-backend.git
    cd Tempfiles-backend/
    ```
 
-3. Download dependencies  
+1. Download dependencies  
    ```BASH
    composer install --no-dev
    ```
 
-4. Set file path  
+1. Set file path  
    ```BASH
    nano src/com/carlgo11/tempfiles/config.php
    ```
@@ -113,27 +116,27 @@ Here's how to set up TempFiles-Backend directly on a Linux server:
    chmod 0700 /tempfiles -R
    ```
 
-5. Copy the Nginx configurations to the sites-available directory.  
+1. Copy the Nginx configurations to the sites-available directory.  
    ```BASH
    cp ./ressouces/nginx/*.conf > /etc/nginx/sites-available/
    ```
 
-6. Generate certificates.  
+1. Generate certificates.  
    For HTTPS to work you'll need a certificate. Due to the many different certificate companies and their different ways of generating certificates I won't go into that in this text.
    When you have a certificate, change the following lines in both nginx configs:
    ```BASH
    nano /etc/nginx/sites-available/*.conf
    ```
-   ```
+   ```NGINX
    ssl_certificate {path_to_cert}/cert.pem; #Change path
    ssl_certificate_key {path_to_key}/privkey.pem; #Change path
    ```
 
-7. Restart Nginx  
+1. Restart Nginx  
    ```BASH
    sudo systemctl restart nginx
    ```
-   
+
 ## Environment variables
 |Name|Default Value|Type|Description|
 |----|-------------|----|-----------|
@@ -142,5 +145,5 @@ Here's how to set up TempFiles-Backend directly on a Linux server:
 |TMP_ENCRYPTION_ALGO|aes-256-gcm|String|File encryption algorithm|
 |TMP_STORAGE_METHOD|File|String|Storage method. Available methods are: File, MySQL|
 |TMP_HASH_COST|10|Integer|Bcrypt hashing cost. Only used for hashing deletion password.|
-|TMP_DOWNLOAD_URL|https://d.carlgo11.com/%1$s/?p=%2$s|String|URL where the user can download the file. `%1$s`=ID `%2$s`=Password|
+|TMP_DOWNLOAD_URL|https://d.carlgo11.com/%1$s/?p=%2$s|String|URL where the user can download the file. `%1$$s`=ID `%2$$s`=Password|
 |TMP_404_URL|https://tempfiles.download/download/?404=1|String|URL to redirect to if a file can't be downloaded.|
