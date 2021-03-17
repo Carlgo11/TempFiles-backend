@@ -15,9 +15,9 @@ A list of available API calls can be found over at [Postman](https://documenter.
 1. Copy the resource files.
     Set up a virtual server config for nginx to use.
     ```BASH
-       mkdir resources
-       curl https://raw.githubusercontent.com/Carlgo11/TempFiles-backend/master/resources/nginx.conf > nginx.conf
-       curl https://raw.githubusercontent.com/Carlgo11/TempFiles-backend/master/resources/php.ini > php.ini
+    mkdir resources
+    curl https://raw.githubusercontent.com/Carlgo11/TempFiles-backend/master/resources/nginx.conf > nginx.conf
+    curl https://raw.githubusercontent.com/Carlgo11/TempFiles-backend/master/resources/php.ini > php.ini
     ```
 
 1. Create a docker-compose.yml file.  
@@ -32,49 +32,49 @@ A list of available API calls can be found over at [Postman](https://documenter.
      tmpfiles:
        image: carlgo11/tempfiles-backend
        ports:
-         - "5392:5392"
-         - "5393:5393"
+       - "5392:5392"
+       - "5393:5393"
        volumes:
-         - ./resources/nginx.conf:/opt/docker/etc/nginx/vhost.conf
+       - ./resources/nginx.conf:/opt/docker/etc/nginx/vhost.conf
        environment:
-         - PHP_POST_MAX_SIZE=128M
-         - PHP_UPLOAD_MAX_FILESIZE=128M
+       - PHP_POST_MAX_SIZE=128M
+       - PHP_UPLOAD_MAX_FILESIZE=128M
        restart: always
    ```
 
 1. Set up a second webserver as a reverse proxy for the docker container(s).  
    _This can be done with Apache or Nginx. Here's an example config for Nginx:_
-   ```NGINX
+    ```NGINX
 	# API
 	server {
-		listen 443 ssl http2;
-		server_name api.tempfiles.download;
-	
-		ssl_certificate <certificate path>;
-		ssl_certificate_key <certificate key path>;
-		ssl_ciphers 'CDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384';
-	
-		# 100M = Total file upload limit of 100 MegaBytes.
-		client_body_buffer_size 128M;
-		client_max_body_size 128M;
-	
-		location / {
-			proxy_pass http://127.0.0.1:5392;
-		}
+	  listen 443 ssl http2;
+	  server_name api.tempfiles.download;
+
+	  ssl_certificate <certificate path>;
+	  ssl_certificate_key <certificate key path>;
+	  ssl_ciphers 'CDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384';
+
+	  # 100M = Total file upload limit of 100 MegaBytes.
+	  client_body_buffer_size 128M;
+	  client_max_body_size 128M;
+
+	  location / {
+	    proxy_pass http://127.0.0.1:5392;
+	  }
 	}
 
 	# Download
 	server {
-		listen 443 ssl http2;
-		server_name d.tempfiles.download;
+	  listen 443 ssl http2;
+	  server_name d.tempfiles.download;
 
-		ssl_certificate <certificate path>;
-		ssl_certificate_key <certificate key path>;
-		ssl_ciphers 'CDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-P OLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384';
+	  ssl_certificate <certificate path>;
+	  ssl_certificate_key <certificate key path>;
+	  ssl_ciphers 'CDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-P OLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384';
 
-		location / {
-			proxy_pass http://127.0.0.1:5393;
-		}
+	  location / {
+	    proxy_pass http://127.0.0.1:5393;
+	  }
 	}
    ```
 
@@ -145,5 +145,5 @@ Here's how to set up TempFiles-Backend directly on a Linux server:
 |TMP_ENCRYPTION_ALGO|aes-256-gcm|String|File encryption algorithm|
 |TMP_STORAGE_METHOD|File|String|Storage method. Available methods are: File, MySQL|
 |TMP_HASH_COST|10|Integer|Bcrypt hashing cost. Only used for hashing deletion password.|
-|TMP_DOWNLOAD_URL|https://d.carlgo11.com/%1$s/?p=%2$s|String|URL where the user can download the file. `%1$$s`=ID `%2$$s`=Password|
+|TMP_DOWNLOAD_URL|https://d.carlgo11.com/%1$$s/?p=%2$$s|String|URL where the user can download the file. `%1$$s`=ID `%2$$s`=Password|
 |TMP_404_URL|https://tempfiles.download/download/?404=1|String|URL to redirect to if a file can't be downloaded.|
