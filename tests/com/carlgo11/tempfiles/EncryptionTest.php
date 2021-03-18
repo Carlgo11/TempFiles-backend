@@ -40,11 +40,9 @@ class EncryptionTest extends TestCase
 		// Setup initial variables
 		$metadata = ['name' => 'testfile.txt', 'size' => '4096', 'type' => 'text/txt'];
 		$delpass = 'gzxHJF4MZd3Ul0KsLo8vb7SPDO';
-		$currentViews = 0;
-		$maxViews = 9;
 		$password = '1VMy5E!71-/R8acDuO8';
 
-		$encrypted = Encryption::encryptFileDetails($metadata, password_hash($delpass, PASSWORD_BCRYPT), $currentViews, $maxViews, $password);
+		$encrypted = Encryption::encryptFileDetails($metadata, password_hash($delpass, PASSWORD_BCRYPT), $password);
 
 		// Test $encrypted output
 		$this->assertIsArray($encrypted);
@@ -64,10 +62,5 @@ class EncryptionTest extends TestCase
 		$this->assertEquals($metadata['size'], base64_decode($decrypted[1]));
 		$this->assertEquals($metadata['type'], base64_decode($decrypted[2]));
 		$this->assertTrue(password_verify($delpass, base64_decode($decrypted[3])));
-
-		$views = explode(" ", base64_decode($decrypted[4]));
-		// Test view array
-		$this->assertEquals($currentViews, $views[0]);
-		$this->assertEquals($maxViews, $views[1]);
 	}
 }

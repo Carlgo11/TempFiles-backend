@@ -43,12 +43,9 @@ class FileTest extends TestCase {
 
 	}
 
-	public function testSetContent() {
+	public function testContent() {
 		$this->_content = 'ijf8z388cbbbX9GFnle45lUVw52W1Z';
 		$this->assertTrue($this->_file->setContent($this->_content));
-	}
-
-	public function testGetContent() {
 		$this->assertEquals($this->_content, $this->_file->getContent());
 	}
 
@@ -82,12 +79,9 @@ class FileTest extends TestCase {
 		$this->assertEquals($this->_file->getDateTime(), $this->_now);
 	}
 
-	public function testSetDeletionPassword() {
+	public function testDeletionPassword() {
 		$this->_deletionPassword = "27DTaEw1eK1rmJ63RKjsq8N1Sp8Mm4";
 		$this->assertTrue($this->_file->setDeletionPassword($this->_deletionPassword));
-	}
-
-	public function testGetDeletionPassword() {
 		$this->assertEquals($this->_file->getDeletionPassword(), $this->_deletionPassword);
 	}
 
