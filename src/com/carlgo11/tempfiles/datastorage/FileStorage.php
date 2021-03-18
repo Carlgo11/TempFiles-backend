@@ -26,7 +26,7 @@ class FileStorage implements DataInterface {
 		return $data['content'];
 	}
 
-	public function entryExists(string $id) {
+	public function entryExists(string $id): bool {
 		global $conf;
 		return file_exists($conf['file-path'] . $id);
 	}
@@ -35,18 +35,29 @@ class FileStorage implements DataInterface {
 	 * @param $id
 	 * @return String|null Returns an encrypted array (split ' ') containing: [0 => name, 1=> size, 2=> type, 3=> deletion password hash, 4=> view array]
 	 */
-	public function getEntryMetaData($id) {
+	public function getEntryMetaData($id): ?string {
 		global $conf;
-		if (!$this->entryExists($id)) return NULL;
+		if (!$this->entryExists($id)) throw new MissingEntry();
 
 		$file = file_get_contents($conf['file-path'] . $id);
 		$data = json_decode($file, TRUE);
 		return $data['metadata'];
 	}
 
-	public function getFileEncryptionData($id) {
+	public function getEntryViews($id): ?array {
 		global $conf;
-		if (!$this->entryExists($id)) return NULL;
+		if (!$this->entryExists($id)) throw new MissingEntry();
+
+		$file = file_get_contents($conf['file-path'] . $id);
+		$data = json_decode($file, TRUE);
+		$views = NULL;
+		if (isset($data['views'])) $views = explode('/', $data['views']);
+		return $views;
+	}
+
+	public function getFileEncryptionData($id): ?array {
+		global $conf;
+		if (!$this->entryExists($id)) throw new MissingEntry();
 
 		$file = file_get_contents($conf['file-path'] . $id);
 		$data = json_decode($file, TRUE);
@@ -61,9 +72,9 @@ class FileStorage implements DataInterface {
 	 * @throws MissingEntry Throws Missing Entry exception if no entry with the ID exists.
 	 * @since 2.5
 	 */
-	public function getEntryExpiry(string $id) {
+	public function getEntryExpiry(string $id): string {
 		global $conf;
-		if(!$this->entryExists($id)) throw new MissingEntry();
+		if (!$this->entryExists($id)) throw new MissingEntry();
 
 		$file = file_get_contents($conf['file-path'] . $id);
 		$data = json_decode($file, TRUE);
@@ -75,10 +86,11 @@ class FileStorage implements DataInterface {
 	 *
 	 * @param EncryptedFile $file {@see EncryptedFile} object to store
 	 * @param string $password Encryption key
+	 * @param array|null $views
 	 * @return mixed
 	 * @since 2.5
 	 */
-	public function saveEntry(EncryptedFile $file, string $password) {
+	public function saveEntry(EncryptedFile $file, string $password, array $views = NULL) {
 		global $conf;
 		$newFile = fopen($conf['file-path'] . $file, "w");
 
@@ -92,6 +104,7 @@ class FileStorage implements DataInterface {
 			'tag' => $file->getTag(),
 			'content' => base64_encode($file->getEncryptedFileContent())
 		];
+		if(isset($views)) $content['views'] = implode('/', $views);
 
 		$txt = json_encode($content, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 		fwrite($newFile, $txt);
@@ -105,8 +118,8 @@ class FileStorage implements DataInterface {
 	 * @return int|null Returns expiry time as a UNIX Timestamp string if one is set. Returns NULL on failure.
 	 * @since 2.5
 	 */
-	private function getExpiry(string $id) {
-		if (!$this->entryExists($id)) return NULL;
+	private function getExpiry(string $id): ?int {
+		if (!$this->entryExists($id)) throw new MissingEntry();
 		global $conf;
 
 		$file = file_get_contents($conf['file-path'] . $id);
@@ -123,8 +136,8 @@ class FileStorage implements DataInterface {
 	 * @throws Exception
 	 * @since 2.5
 	 */
-	public function deleteEntry(string $id) {
-		if (!$this->entryExists($id)) throw new Exception("No file found by that ID");
+	public function deleteEntry(string $id): bool {
+		if (!$this->entryExists($id)) throw new MissingEntry();
 
 		global $conf;
 		return unlink($conf['file-path'] . $id);
@@ -133,5 +146,17 @@ class FileStorage implements DataInterface {
 	public function listEntries() {
 		global $conf;
 		return array_diff(scandir($conf['file-path']), array('.', '..'));
+	}
+
+	public function updateEntryViews($id, $currentViews): bool {
+		global $conf;
+		$file = file_get_contents($conf['file-path'] . $id);
+		$newFile = fopen($conf['file-path'] . $id, "w");
+		$data = json_decode($file, TRUE);
+		$views = explode('/', $data['views']);
+		$data['views'] = "$currentViews/$views[1]";
+		$txt = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+		fwrite($newFile, $txt);
+		return fclose($newFile);
 	}
 }

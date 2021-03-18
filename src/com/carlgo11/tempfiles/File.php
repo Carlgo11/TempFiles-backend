@@ -15,12 +15,12 @@ use Exception;
  */
 class File {
 
-	protected $_id;
-	protected $_content;
-	protected $_currentViews;
-	protected $_maxViews = 0;
-	protected $_deletionPassword;
-	protected $_metaData;
+	protected string $_id;
+	protected string $_content;
+	protected int $_currentViews = 0;
+	protected int $_maxViews = 0;
+	protected string $_deletionPassword;
+	protected array $_metaData;
 	protected $_iv;
 	protected $_time;
 
@@ -45,7 +45,7 @@ class File {
 	 * @return boolean Returns TRUE if the action was successfully executed, otherwise FALSE.
 	 * @since 2.2
 	 */
-	private function generateID() {
+	private function generateID(): bool {
 		return is_string($this->_id = strtoupper(uniqid("d")));
 	}
 
@@ -56,7 +56,7 @@ class File {
 	 * @return boolean Returns TRUE if the action was successfully executed, otherwise FALSE.
 	 * @since 2.2
 	 */
-	private function setID(string $id) {
+	private function setID(string $id): bool {
 		return ($this->_id = $id) === $id;
 	}
 
@@ -66,7 +66,7 @@ class File {
 	 * @return string Returns the ID of the file.
 	 * @since 2.2
 	 */
-	public function __toString() {
+	public function __toString(): string {
 		return $this->_id;
 	}
 
@@ -76,7 +76,7 @@ class File {
 	 * @return string Returns the ID of the file.
 	 * @since 2.2
 	 */
-	public function getID() {
+	public function getID(): string {
 		return $this->_id;
 	}
 
@@ -86,7 +86,7 @@ class File {
 	 * @return string Returns file content in clear text.
 	 * @since 2.2
 	 */
-	public function getContent() {
+	public function getContent(): string {
 		return $this->_content;
 	}
 
@@ -97,7 +97,7 @@ class File {
 	 * @return boolean Returns TRUE if the action was successfully executed, otherwise FALSE.
 	 * @since 2.2
 	 */
-	public function setContent(string $content) {
+	public function setContent(string $content): bool {
 		return ($this->_content = $content) === $content;
 	}
 
@@ -107,7 +107,7 @@ class File {
 	 * @return int Returns current views/downloads of the file if supplied, otherwise NULL.
 	 * @since 2.2
 	 */
-	public function getCurrentViews() {
+	public function getCurrentViews(): int {
 		return (int)$this->_currentViews;
 	}
 
@@ -128,7 +128,7 @@ class File {
 	 * @return int|null Returns max views of the file if supplied, otherwise NULL.
 	 * @since 2.2
 	 */
-	public function getMaxViews() {
+	public function getMaxViews(): ?int {
 		return $this->_maxViews;
 	}
 
@@ -139,7 +139,7 @@ class File {
 	 * @return boolean Returns TRUE if the action was successfully executed, otherwise FALSE.
 	 * @since 2.2
 	 */
-	public function setMaxViews(int $views) {
+	public function setMaxViews(int $views): bool {
 		return ($this->_maxViews = $views) === $views;
 	}
 
@@ -149,7 +149,7 @@ class File {
 	 * @return string Returns deletion password if supplied, otherwise NULL.
 	 * @since 2.2
 	 */
-	public function getDeletionPassword() {
+	public function getDeletionPassword(): string {
 		return $this->_deletionPassword;
 	}
 
@@ -160,7 +160,7 @@ class File {
 	 * @return boolean Returns TRUE if the action was successfully executed, otherwise FALSE.
 	 * @since 2.2
 	 */
-	public function setDeletionPassword(string $deletionPassword) {
+	public function setDeletionPassword(string $deletionPassword): bool {
 		return ($this->_deletionPassword = $deletionPassword) === $deletionPassword;
 	}
 
@@ -184,7 +184,7 @@ class File {
 	 * @throws Exception Throws exception if size isn't a number.
 	 * @since 2.2
 	 */
-	public function setMetaData(array $metaData) {
+	public function setMetaData(array $metaData): bool {
 		if (!filter_var($metaData['size'], FILTER_VALIDATE_INT, ['min_range' => 0]))
 			throw new Exception("File size " . $metaData['size'] . " isn't a number.");
 		else $newMetaData['size'] = $metaData['size'];
@@ -200,7 +200,7 @@ class File {
 		return $this->_iv;
 	}
 
-	public function setIV(array $iv) {
+	public function setIV(array $iv): bool {
 		return ($this->_iv = $iv) === $iv;
 	}
 
@@ -211,7 +211,7 @@ class File {
 	 * @return boolean Returns TRUE if the action was successful, otherwise FALSE.
 	 * @since 2.4
 	 */
-	public function setDateTime(DateTime $time) {
+	public function setDateTime(DateTime $time): bool {
 		return ($this->_time = $time) === $time && !NULL;
 	}
 
@@ -221,7 +221,7 @@ class File {
 	 * @return DateTime|null Returns the time of which the file will be removed if one is set.
 	 * @since 2.4
 	 */
-	public function getDateTime() {
+	public function getDateTime(): ?DateTime {
 		return $this->_time;
 	}
 }

@@ -14,15 +14,18 @@ function return404() {
 $url = explode('/', strtoupper($_SERVER['REQUEST_URI']));
 $id = filter_var($url[1]);
 $password = filter_input(INPUT_GET, "p");
-
-$file = DataStorage::getFile($id, $password);
-
+if (is_null($password)) die("No password specified.");
+try {
+	$file = DataStorage::getFile($id, $password);
+} catch (Exception $ex) {
+	return404();
+}
 $metadata = $file->getMetaData();
 $content = base64_encode($file->getContent());
 
 if ($file->getMaxViews()) { // max views > 0
 	if ($file->getMaxViews() <= $file->getCurrentViews() + 1) DataStorage::deleteFile($id);
-	else $file->setCurrentViews($file->getCurrentViews() + 1);
+	else DataStorage::updateViews($id, $file->getCurrentViews() + 1);
 }
 
 // Set headers

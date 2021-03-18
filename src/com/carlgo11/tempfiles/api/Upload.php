@@ -25,8 +25,8 @@ class Upload extends API {
 			$file = new File($fileArray);
 			$output = [];
 
-			if (Misc::getVar('maxviews') !== NULL) {
-				$file->setMaxViews(Misc::getVar('maxviews'));
+			if (!is_null(Misc::getVar('maxviews'))) {
+				$file->setMaxViews(Misc::getVar('maxviews') + 1);
 				$output['maxviews'] = (int)$file->getMaxViews();
 			}
 

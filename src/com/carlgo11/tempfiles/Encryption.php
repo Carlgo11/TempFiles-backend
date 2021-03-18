@@ -80,8 +80,6 @@ class Encryption {
 	 *
 	 * @param array $metadata the $_FILES[] array to use.
 	 * @param string $deletionPassword Deletion password to encrypt along with the metadata.
-	 * @param int $currentViews Current views of the file.
-	 * @param int $maxViews Max allowable views of the file before deletion.
 	 * @param string $password Password used to encrypt the data.
 	 * @return array|false
 	 * @throws Exception
@@ -90,19 +88,16 @@ class Encryption {
 	 * @since 2.3 Added support for AEAD cipher modes.
 	 * @global array $conf Configuration variables.
 	 */
-	public static function encryptFileDetails(array $metadata, string $deletionPassword, int $currentViews, int $maxViews, string $password) {
+	public static function encryptFileDetails(array $metadata, string $deletionPassword, string $password) {
 		global $conf;
 		$cipher = $conf['Encryption-Method'];
 		$iv = self::getIV($cipher);
 
-
-		$views_string = implode(' ', [$currentViews, $maxViews]);
 		$data_array = [
 			base64_encode($metadata['name']),
 			base64_encode($metadata['size']),
 			base64_encode($metadata['type']),
 			base64_encode($deletionPassword),
-			base64_encode($views_string)
 		];
 
 		$data_string = implode(" ", $data_array);

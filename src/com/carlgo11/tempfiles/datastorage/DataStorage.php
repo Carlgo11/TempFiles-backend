@@ -4,6 +4,7 @@ namespace com\carlgo11\tempfiles\datastorage;
 
 use com\carlgo11\tempfiles\EncryptedFile;
 use com\carlgo11\tempfiles\Encryption;
+use com\carlgo11\tempfiles\exception\MissingEntry;
 use com\carlgo11\tempfiles\File;
 use DateTime;
 use Exception;
@@ -25,21 +26,36 @@ class DataStorage {
 	 * @throws Exception Throws exception upon file-fetching failure.
 	 * @since 2.5
 	 */
-	public static function getFile(string $id, string $password) {
-		$storage = DataStorage::getStorage();
-		$storedContent = $storage->getEntryContent($id);
-		$storedMetaData = $storage->getEntryMetaData($id);
-		$storedEncryptionData = $storage->getFileEncryptionData($id);
+	public static function getFile(string $id, string $password): File {
+		try {
+			$storage = DataStorage::getStorage();
+			$storedContent = $storage->getEntryContent($id);
+			$storedMetaData = $storage->getEntryMetaData($id);
+			$storedEncryptionData = $storage->getFileEncryptionData($id);
+			$storedViews = $storage->getEntryViews($id);
+		} catch (MissingEntry $ex) {
+			throw new MissingEntry();
+		}
 
 		$content = Encryption::decrypt(base64_decode($storedContent), $password, $storedEncryptionData['iv'][0], $storedEncryptionData['tag'][0]);
-		$metadata = Encryption::decrypt($storedMetaData, $password, $storedEncryptionData['iv'][1], $storedEncryptionData['tag'][1]);
-		$metadata = explode(' ', $metadata);
+		$metadata = explode(' ', Encryption::decrypt($storedMetaData, $password, $storedEncryptionData['iv'][1], $storedEncryptionData['tag'][1]));
+		$metadata = ['name' => $metadata[0],
+			'size' => $metadata[1],
+			'type' => $metadata[2],
+			'delpass' => $metadata[3],
+		];
+
 		$file = new File(NULL, $id);
 		$file->setContent($content);
-		$file->setDeletionPassword(base64_decode($metadata[3]));
+		$file->setDeletionPassword(base64_decode($metadata['delpass']));
+
+		if ($storedViews !== NULL && sizeof($storedViews) === 2) {
+			$file->setCurrentViews($storedViews[0] + 1);
+			$file->setMaxViews($storedViews[1]);
+		}
 
 		// List keys are lost during storage.
-		$file->setMetaData(['size' => base64_decode($metadata[1]), 'name' => base64_decode($metadata[0]), 'type' => base64_decode($metadata[2])]);
+		$file->setMetaData(['size' => base64_decode($metadata['size']), 'name' => base64_decode($metadata['name']), 'type' => base64_decode($metadata['type'])]);
 		return $file;
 	}
 
@@ -71,7 +87,7 @@ class DataStorage {
 	 * @throws Exception
 	 * @since 2.5
 	 */
-	public static function saveFile(File $file, string $password) {
+	public static function saveFile(File $file, string $password): bool {
 		$storage = DataStorage::getStorage();
 
 		include_once __DIR__ . '/../EncryptedFile.php';
@@ -80,7 +96,7 @@ class DataStorage {
 		$encryptedFile->setFileMetaData($file->getMetaData(), $file, $password);
 		$encryptedFile->setID($file->getID());
 
-		return $storage->saveEntry($encryptedFile, $password);
+		return $storage->saveEntry($encryptedFile, $password, [$file->getCurrentViews(), $file->getMaxViews()]);
 	}
 
 	/**
@@ -104,8 +120,19 @@ class DataStorage {
 	 * @return bool Returns TRUE on success & FALSE on failure.
 	 * @throws Exception Throws any exceptions from the storage classes.
 	 */
-	public static function deleteFile(string $id) {
+	public static function deleteFile(string $id): bool {
 		$storage = DataStorage::getStorage();
 		return $storage->deleteEntry($id);
+	}
+
+	/**
+	 * @param string $id
+	 * @param int $currentViews
+	 * @return bool
+	 * @throws Exception
+	 */
+	public static function updateViews(string $id, int $currentViews): bool {
+		$storage = DataStorage::getStorage();
+		return $storage->updateEntryViews($id, $currentViews);
 	}
 }

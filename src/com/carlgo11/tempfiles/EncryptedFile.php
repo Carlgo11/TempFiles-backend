@@ -14,7 +14,7 @@ class EncryptedFile {
 	protected $_metadata;
 	protected string $_id;
 
-	public function __toString() {
+	public function __toString(): string {
 		return $this->_id;
 	}
 
@@ -43,7 +43,7 @@ class EncryptedFile {
 	 * @throws Exception
 	 */
 	public function setFileMetaData(array $metadata, File $file, string $password) {
-		$data = Encryption::encryptFileDetails($metadata, $file->getDeletionPassword(), (int)$file->getCurrentViews(), (int)$file->getMaxViews(), $password);
+		$data = Encryption::encryptFileDetails($metadata, $file->getDeletionPassword(), $password);
 		$this->_metadata = $data['data'];
 		$this->_iv[1] = $data['iv'];
 		$this->_tag[1] = $data['tag'];
