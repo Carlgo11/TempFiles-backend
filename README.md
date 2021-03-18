@@ -21,9 +21,9 @@ A list of available API calls can be found over at [Postman](https://documenter.
     ```
 
 1. Create a docker-compose.yml file.  
-  	```BASH
-  	nano docker-compose.yml
-  	```
+	```BASH
+	nano docker-compose.yml
+	```
 
    And paste in the following:
    ```YAML 
@@ -35,10 +35,8 @@ A list of available API calls can be found over at [Postman](https://documenter.
        - "5392:5392"
        - "5393:5393"
        volumes:
-       - ./resources/nginx.conf:/opt/docker/etc/nginx/vhost.conf
-       environment:
-       - PHP_POST_MAX_SIZE=128M
-       - PHP_UPLOAD_MAX_FILESIZE=128M
+       - ./resources/nginx.conf:/opt/docker/etc/nginx/vhost.conf:ro
+       - ./resources/php.ini:/usr/local/etc/php/conf.d/php.ini:ro
        restart: always
    ```
 
@@ -70,7 +68,7 @@ A list of available API calls can be found over at [Postman](https://documenter.
 
 	  ssl_certificate <certificate path>;
 	  ssl_certificate_key <certificate key path>;
-	  ssl_ciphers 'CDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-P OLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384';
+	  ssl_ciphers 'CDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384';
 
 	  location / {
 	    proxy_pass http://127.0.0.1:5393;
