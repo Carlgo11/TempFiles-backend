@@ -8,10 +8,10 @@ use Exception;
 
 class EncryptedFile {
 
-	protected $_blob;
-	protected $_iv;
-	protected $_tag;
-	protected $_metadata;
+	protected string $_blob;
+	protected string $_iv;
+	protected string $_tag;
+	protected string $_metadata;
 	protected string $_id;
 
 	public function __toString(): string {
@@ -49,19 +49,19 @@ class EncryptedFile {
 		$this->_tag[1] = $data['tag'];
 	}
 
-	public function getEncryptedMetaData() {
+	public function getEncryptedMetaData(): string {
 		return $this->_metadata;
 	}
 
-	public function getEncryptedFileContent() {
+	public function getEncryptedFileContent(): string {
 		return $this->_blob;
 	}
 
-	public function getIV() {
+	public function getIV(): string {
 		return $this->_iv;
 	}
 
-	public function getTag() {
+	public function getTag(): string {
 		return $this->_tag;
 	}
 }

@@ -17,25 +17,42 @@ use Exception;
  */
 class FileStorage implements DataInterface {
 
-	public function getEntryContent($id) {
+	/**
+	 * Get encrypted content (file data) from a stored entry.
+	 *
+	 * @param string $id Unique ID of the stored entry.
+	 * @return string Returns base64 encoded, encrypted binary file data.
+	 * @throws MissingEntry Throws Missing Entry exception if no entry with the ID exists.
+	 * @since 2.5
+	 * @since 3.0 Throw {@see MissingEntry} exception instead of NULL.
+	 */
+	public function getEntryContent(string $id): string {
 		global $conf;
-		if (!$this->entryExists($id)) return NULL;
+		if (!$this->entryExists($id)) throw new MissingEntry();
 
 		$file = file_get_contents($conf['file-path'] . $id);
 		$data = json_decode($file, TRUE);
 		return $data['content'];
 	}
 
+	/**
+	 * See if an entry with the provided ID exists.
+	 *
+	 * @param string $id Unique ID of the entry.
+	 * @return boolean Returns TRUE if entry exists, otherwise FALSE.
+	 * @since 2.5
+	 */
 	public function entryExists(string $id): bool {
 		global $conf;
 		return file_exists($conf['file-path'] . $id);
 	}
 
 	/**
-	 * @param $id
+	 * @param string $id Unique ID of the stored entry.
 	 * @return String|null Returns an encrypted array (split ' ') containing: [0 => name, 1=> size, 2=> type, 3=> deletion password hash, 4=> view array]
+	 * @throws MissingEntry Throws Missing Entry exception if no entry with the ID exists.
 	 */
-	public function getEntryMetaData($id): ?string {
+	public function getEntryMetaData(string $id): ?string {
 		global $conf;
 		if (!$this->entryExists($id)) throw new MissingEntry();
 
@@ -44,7 +61,12 @@ class FileStorage implements DataInterface {
 		return $data['metadata'];
 	}
 
-	public function getEntryViews($id): ?array {
+	/**
+	 * @param string $id Unique ID of the stored entry.
+	 * @return array|null
+	 * @throws MissingEntry Throws Missing Entry exception if no entry with the ID exists.
+	 */
+	public function getEntryViews(string $id): ?array {
 		global $conf;
 		if (!$this->entryExists($id)) throw new MissingEntry();
 
@@ -55,7 +77,12 @@ class FileStorage implements DataInterface {
 		return $views;
 	}
 
-	public function getFileEncryptionData($id): ?array {
+	/**
+	 * @param string $id Unique ID of the stored entry.
+	 * @return array|null
+	 * @throws MissingEntry Throws Missing Entry exception if no entry with the ID exists.
+	 */
+	public function getFileEncryptionData(string $id): ?array {
 		global $conf;
 		if (!$this->entryExists($id)) throw new MissingEntry();
 
@@ -65,9 +92,37 @@ class FileStorage implements DataInterface {
 	}
 
 	/**
-	 * Get the expiry date of an entry.
+	 * Save an uploaded entry.
 	 *
-	 * @param string $id ID of the entry.
+	 * @param EncryptedFile $file {@see EncryptedFile} object to store
+	 * @param string $password Encryption key
+	 * @param array|null $views Views array containing current views and max views.
+	 * @return bool Returns true if file was successfully saved.
+	 * @since 2.5
+	 */
+	public function saveEntry(EncryptedFile $file, string $password, array $views = NULL): bool {
+		global $conf;
+		$newFile = fopen($conf['file-path'] . $file, "w");
+
+		$expiry = (new DateTime('+1 day'))->getTimestamp();
+		$content = [
+			'expiry' => $expiry,
+			'metadata' => $file->getEncryptedMetaData(),
+			'iv' => $file->getIV(),
+			'tag' => $file->getTag(),
+			'content' => base64_encode($file->getEncryptedFileContent())
+		];
+		if (isset($views)) $content['views'] = implode('/', $views);
+
+		$txt = json_encode($content, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+		fwrite($newFile, $txt);
+		return fclose($newFile);
+	}
+
+	/**
+	 * Get the expiry date of a stored entry.
+	 *
+	 * @param string $id Unique ID of the entry.
 	 * @return string Returns the timestamp as a string.
 	 * @throws MissingEntry Throws Missing Entry exception if no entry with the ID exists.
 	 * @since 2.5
@@ -82,56 +137,9 @@ class FileStorage implements DataInterface {
 	}
 
 	/**
-	 * Save an uploaded entry (file)
-	 *
-	 * @param EncryptedFile $file {@see EncryptedFile} object to store
-	 * @param string $password Encryption key
-	 * @param array|null $views
-	 * @return mixed
-	 * @since 2.5
-	 */
-	public function saveEntry(EncryptedFile $file, string $password, array $views = NULL) {
-		global $conf;
-		$newFile = fopen($conf['file-path'] . $file, "w");
-
-		// Get expiry date if file already exists
-		if (($expiry = $this->getExpiry($file)) === NULL) $expiry = (new DateTime('+1 day'))->getTimestamp();
-
-		$content = [
-			'expiry' => $expiry,
-			'metadata' => $file->getEncryptedMetaData(),
-			'iv' => $file->getIV(),
-			'tag' => $file->getTag(),
-			'content' => base64_encode($file->getEncryptedFileContent())
-		];
-		if(isset($views)) $content['views'] = implode('/', $views);
-
-		$txt = json_encode($content, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-		fwrite($newFile, $txt);
-		return fclose($newFile);
-	}
-
-	/**
-	 * Get expiry time of an already stored file.
-	 *
-	 * @param string $id ID of the specific file.
-	 * @return int|null Returns expiry time as a UNIX Timestamp string if one is set. Returns NULL on failure.
-	 * @since 2.5
-	 */
-	private function getExpiry(string $id): ?int {
-		if (!$this->entryExists($id)) throw new MissingEntry();
-		global $conf;
-
-		$file = file_get_contents($conf['file-path'] . $id);
-		$data = json_decode($file, TRUE);
-		if ($data === NULL || $data === FALSE) return NULL;
-		return $data['expiry'];
-	}
-
-	/**
 	 * Delete a stored entry (file)
 	 *
-	 * @param string $id ID of the entry to delete
+	 * @param string $id Unique ID of the entry to delete.
 	 * @return bool
 	 * @throws Exception
 	 * @since 2.5
@@ -143,12 +151,26 @@ class FileStorage implements DataInterface {
 		return unlink($conf['file-path'] . $id);
 	}
 
+	/**
+	 * Get all stored entry IDs
+	 *
+	 * @return array|false Returns an array of all stored entries.
+	 * @since 2.5
+	 * @deprecated Not used by DataStorage. Will be removed in the future.
+	 */
 	public function listEntries() {
 		global $conf;
 		return array_diff(scandir($conf['file-path']), array('.', '..'));
 	}
 
-	public function updateEntryViews($id, $currentViews): bool {
+	/**
+	 * Update views array in stored entry file.
+	 *
+	 * @param string $id ID of the entry.
+	 * @param int $currentViews New current views.
+	 * @return bool
+	 */
+	public function updateEntryViews(string $id, int $currentViews): bool {
 		global $conf;
 		$file = file_get_contents($conf['file-path'] . $id);
 		$newFile = fopen($conf['file-path'] . $id, "w");

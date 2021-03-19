@@ -7,20 +7,33 @@ use com\carlgo11\tempfiles\exception\MissingEntry;
 
 interface DataInterface {
 
-
-	public function getEntryContent($id);
-
-	public function getEntryMetaData($id);
+	/**
+	 * Get encrypted content (file data) from a stored entry.
+	 *
+	 * @param string $id Unique ID of the stored entry.
+	 * @return string Returns base64 encoded, encrypted binary file data.
+	 * @throws MissingEntry Throws Missing Entry exception if no entry with the ID exists.
+	 * @since 2.5
+	 */
+	public function getEntryContent(string $id): ?string;
 
 	/**
-	 * Save an uploaded entry (file)
+	 * @param string $id
+	 * @return string|null
+	 */
+	public function getEntryMetaData(string $id): ?string;
+
+	/**
+	 * Save an uploaded entry.
 	 *
 	 * @param EncryptedFile $file {@see EncryptedFile} object to store
 	 * @param string $password Encryption key
-	 * @return mixed
+	 * @param array|null $views Views array containing current views and max views.
+	 * @return bool Returns true if file was successfully saved.
+	 * @throws MissingEntry Throws Missing Entry exception if no entry with the ID exists.
 	 * @since 2.5
 	 */
-	public function saveEntry(EncryptedFile $file, string $password);
+	public function saveEntry(EncryptedFile $file, string $password,  array $views = NULL): bool;
 
 	/**
 	 * See if an entry with the provided ID exists
@@ -29,7 +42,7 @@ interface DataInterface {
 	 * @return boolean Returns TRUE if entry exists, otherwise FALSE.
 	 * @since 2.5
 	 */
-	public function entryExists(string $id);
+	public function entryExists(string $id): bool;
 
 	/**
 	 * Delete a stored entry (file)
@@ -38,17 +51,17 @@ interface DataInterface {
 	 * @return mixed
 	 * @since 2.5
 	 */
-	public function deleteEntry(string $id);
+	public function deleteEntry(string $id): bool;
 
 	/**
-	 * Get the expiry date of an entry.
+	 * Get the expiry date of a stored entry.
 	 *
-	 * @param string $id ID of the entry.
+	 * @param string $id Unique ID of the entry.
 	 * @return string Returns the timestamp as a string.
 	 * @throws MissingEntry Throws Missing Entry exception if no entry with the ID exists.
 	 * @since 2.5
 	 */
-	public function getEntryExpiry(string $id);
+	public function getEntryExpiry(string $id): string;
 
 	/**
 	 * @return mixed

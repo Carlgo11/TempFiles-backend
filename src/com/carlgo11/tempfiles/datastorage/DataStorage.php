@@ -18,9 +18,9 @@ use Exception;
 class DataStorage {
 
 	/**
-	 * Get a stored file.
+	 * Get a stored entry.
 	 *
-	 * @param string $id Unique ID of the stored file.
+	 * @param string $id Unique ID of the stored entry.
 	 * @param string $password Decryption key of the stored file.
 	 * @return File Decrypted file as a {@see File} object.
 	 * @throws Exception Throws exception upon file-fetching failure.
@@ -48,14 +48,11 @@ class DataStorage {
 		$file = new File(NULL, $id);
 		$file->setContent($content);
 		$file->setDeletionPassword(base64_decode($metadata['delpass']));
-
+		$file->setMetaData(['size' => base64_decode($metadata['size']), 'name' => base64_decode($metadata['name']), 'type' => base64_decode($metadata['type'])]);
 		if ($storedViews !== NULL && sizeof($storedViews) === 2) {
 			$file->setCurrentViews($storedViews[0] + 1);
 			$file->setMaxViews($storedViews[1]);
 		}
-
-		// List keys are lost during storage.
-		$file->setMetaData(['size' => base64_decode($metadata['size']), 'name' => base64_decode($metadata['name']), 'type' => base64_decode($metadata['type'])]);
 		return $file;
 	}
 
@@ -79,7 +76,7 @@ class DataStorage {
 	}
 
 	/**
-	 * Save an uploaded file.
+	 * Save an uploaded entry.
 	 *
 	 * @param File $file {@see File} object to store.
 	 * @param String $password Encryption key.
@@ -114,11 +111,12 @@ class DataStorage {
 	}
 
 	/**
-	 * Delete a stored file
+	 * Delete a stored entry.
 	 *
-	 * @param string $id ID of the file to delete.
+	 * @param string $id Unique ID of the entry to delete.
 	 * @return bool Returns TRUE on success & FALSE on failure.
 	 * @throws Exception Throws any exceptions from the storage classes.
+	 * @since 2.5
 	 */
 	public static function deleteFile(string $id): bool {
 		$storage = DataStorage::getStorage();
@@ -126,10 +124,13 @@ class DataStorage {
 	}
 
 	/**
-	 * @param string $id
-	 * @param int $currentViews
-	 * @return bool
+	 * Update current views on existing entry.
+	 *
+	 * @param string $id Unique ID of the stored entry.
+	 * @param int $currentViews New current views.
+	 * @return bool Returns TRUE if views were successfully changed.
 	 * @throws Exception
+	 * @since 3.0
 	 */
 	public static function updateViews(string $id, int $currentViews): bool {
 		$storage = DataStorage::getStorage();
