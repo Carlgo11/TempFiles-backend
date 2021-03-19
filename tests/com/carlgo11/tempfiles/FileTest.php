@@ -23,7 +23,7 @@ class FileTest extends TestCase {
 	public function testSetIV() {
 		global $conf;
 		try {
-			$iv = [Encryption::getIV($conf['Encryption-Method']), Encryption::getIV($conf['Encryption-Method'])];
+			$iv = [Encryption::createIV($conf['Encryption-Method']), Encryption::createIV($conf['Encryption-Method'])];
 		} catch (Exception $e) {
 			error_log($e);
 			return FALSE;

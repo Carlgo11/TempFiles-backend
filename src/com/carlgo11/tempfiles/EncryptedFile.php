@@ -1,16 +1,14 @@
 <?php
 
-
 namespace com\carlgo11\tempfiles;
-
 
 use Exception;
 
 class EncryptedFile {
 
 	protected string $_blob;
-	protected string $_iv;
-	protected string $_tag;
+	protected array $_iv;
+	protected array $_tag;
 	protected string $_metadata;
 	protected string $_id;
 
@@ -57,11 +55,11 @@ class EncryptedFile {
 		return $this->_blob;
 	}
 
-	public function getIV(): string {
+	public function getIV(): array {
 		return $this->_iv;
 	}
 
-	public function getTag(): string {
+	public function getTag(): array {
 		return $this->_tag;
 	}
 }

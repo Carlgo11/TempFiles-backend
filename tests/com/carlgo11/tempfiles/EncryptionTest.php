@@ -11,7 +11,7 @@ class EncryptionTest extends TestCase
 	public function testGetIV() {
 		global $conf;
 		try {
-			$this->assertIsString(Encryption::getIV($conf['Encryption-Method']));
+			$this->assertIsString(Encryption::createIV($conf['Encryption-Method']));
 		} catch (Exception $e) {
 			error_log($e);
 			return FALSE;

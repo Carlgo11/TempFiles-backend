@@ -3,7 +3,6 @@
 namespace com\carlgo11\tempfiles\api;
 
 use com\carlgo11\tempfiles\datastorage\DataStorage;
-use com\carlgo11\tempfiles\exception\BadMethod;
 use Exception;
 
 class Cleanup extends API {

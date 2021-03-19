@@ -39,7 +39,8 @@ class DataStorage {
 
 		$content = Encryption::decrypt(base64_decode($storedContent), $password, $storedEncryptionData['iv'][0], $storedEncryptionData['tag'][0]);
 		$metadata = explode(' ', Encryption::decrypt($storedMetaData, $password, $storedEncryptionData['iv'][1], $storedEncryptionData['tag'][1]));
-		$metadata = ['name' => $metadata[0],
+		$metadata = [
+			'name' => $metadata[0],
 			'size' => $metadata[1],
 			'type' => $metadata[2],
 			'delpass' => $metadata[3],
