@@ -5,7 +5,6 @@ namespace com\carlgo11\tempfiles\datastorage;
 use com\carlgo11\tempfiles\EncryptedFile;
 use com\carlgo11\tempfiles\exception\MissingEntry;
 use DateTime;
-use Exception;
 
 /**
  * Local file storage class
@@ -22,17 +21,16 @@ class FileStorage implements DataInterface {
 	 *
 	 * @param string $id Unique ID of the stored entry.
 	 * @return string Returns base64 encoded, encrypted binary file data.
-	 * @throws MissingEntry Throws Missing Entry exception if no entry with the ID exists.
+	 * @throws MissingEntry Throws {@see MissingEntry} exception if no entry with the ID exists.
 	 * @since 2.5
 	 * @since 3.0 Throw {@see MissingEntry} exception instead of NULL.
 	 */
 	public function getEntryContent(string $id): string {
-		global $conf;
 		if (!$this->entryExists($id)) throw new MissingEntry();
+		global $conf;
 
 		$file = file_get_contents($conf['file-path'] . $id);
-		$data = json_decode($file, TRUE);
-		return $data['content'];
+		return json_decode($file, TRUE)['content'];
 	}
 
 	/**
@@ -48,43 +46,50 @@ class FileStorage implements DataInterface {
 	}
 
 	/**
+	 * Get encrypted metadata.
+	 *
 	 * @param string $id Unique ID of the stored entry.
 	 * @return String|null Returns an encrypted array (split ' ') containing: [0 => name, 1=> size, 2=> type, 3=> deletion password hash, 4=> view array]
-	 * @throws MissingEntry Throws Missing Entry exception if no entry with the ID exists.
+	 * @throws MissingEntry Throws {@see MissingEntry} exception if no entry with the ID exists.
+	 * @since 2.5
 	 */
 	public function getEntryMetaData(string $id): ?string {
-		global $conf;
 		if (!$this->entryExists($id)) throw new MissingEntry();
+		global $conf;
 
 		$file = file_get_contents($conf['file-path'] . $id);
-		$data = json_decode($file, TRUE);
-		return $data['metadata'];
+		return json_decode($file, TRUE)['metadata'];
 	}
 
 	/**
+	 * Get views and max views of a stored entry.
+	 *
 	 * @param string $id Unique ID of the stored entry.
-	 * @return array|null
-	 * @throws MissingEntry Throws Missing Entry exception if no entry with the ID exists.
+	 * @return array|null Returns an array containing: [0 => current views, 1 => max views].
+	 * @throws MissingEntry Throws {@see MissingEntry} exception if no entry with the ID exists.
+	 * @since 3.0
 	 */
 	public function getEntryViews(string $id): ?array {
-		global $conf;
 		if (!$this->entryExists($id)) throw new MissingEntry();
+		global $conf;
 
 		$file = file_get_contents($conf['file-path'] . $id);
 		$data = json_decode($file, TRUE);
-		$views = NULL;
-		if (isset($data['views'])) $views = explode('/', $data['views']);
-		return $views;
+		if (isset($data['views'])) return explode('/', $data['views']);
+		else return NULL;
 	}
 
 	/**
+	 * Get file encryption details (IV, tags) of a stored entry.
+	 *
 	 * @param string $id Unique ID of the stored entry.
-	 * @return array|null
-	 * @throws MissingEntry Throws Missing Entry exception if no entry with the ID exists.
+	 * @return array
+	 * @throws MissingEntry Throws {@see MissingEntry} exception if no entry with the ID exists.
+	 * @since 2.5
 	 */
-	public function getFileEncryptionData(string $id): ?array {
-		global $conf;
+	public function getFileEncryptionData(string $id): array {
 		if (!$this->entryExists($id)) throw new MissingEntry();
+		global $conf;
 
 		$file = file_get_contents($conf['file-path'] . $id);
 		$data = json_decode($file, TRUE);
@@ -124,29 +129,27 @@ class FileStorage implements DataInterface {
 	 *
 	 * @param string $id Unique ID of the entry.
 	 * @return string Returns the timestamp as a string.
-	 * @throws MissingEntry Throws Missing Entry exception if no entry with the ID exists.
+	 * @throws MissingEntry Throws {@see MissingEntry} exception if no entry with the ID exists.
 	 * @since 2.5
 	 */
 	public function getEntryExpiry(string $id): string {
-		global $conf;
 		if (!$this->entryExists($id)) throw new MissingEntry();
+		global $conf;
 
 		$file = file_get_contents($conf['file-path'] . $id);
-		$data = json_decode($file, TRUE);
-		return $data['expiry'];
+		return json_decode($file, TRUE)['expiry'];
 	}
 
 	/**
 	 * Delete a stored entry (file)
 	 *
 	 * @param string $id Unique ID of the entry to delete.
-	 * @return bool
-	 * @throws Exception
+	 * @return bool Returns true if stored entry successfully deleted.
+	 * @throws MissingEntry Throws {@see MissingEntry} exception if no entry with the ID exists.
 	 * @since 2.5
 	 */
 	public function deleteEntry(string $id): bool {
 		if (!$this->entryExists($id)) throw new MissingEntry();
-
 		global $conf;
 		return unlink($conf['file-path'] . $id);
 	}
@@ -168,7 +171,8 @@ class FileStorage implements DataInterface {
 	 *
 	 * @param string $id ID of the entry.
 	 * @param int $currentViews New current views.
-	 * @return bool
+	 * @return bool Returns true if views successfully changed, otherwise false.
+	 * @since 3.0
 	 */
 	public function updateEntryViews(string $id, int $currentViews): bool {
 		global $conf;
