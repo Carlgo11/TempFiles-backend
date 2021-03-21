@@ -23,6 +23,7 @@
   "require": {
     "ext-json": "*",
     "ext-openssl": "*",
-    "ext-mbstring": "*"
+    "ext-mbstring": "*",
+    "ext-mysqli": "*"
   }
 }

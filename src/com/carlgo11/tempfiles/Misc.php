@@ -17,7 +17,7 @@ class Misc
 	 * @return string Returns parameter data if the parameter exists.
 	 * @since 2.4 Added default NULL return.
 	 */
-	public static function getVar($name) {
+	public static function getVar(string $name): ?string {
 		if (filter_input(INPUT_GET, $name) != NULL)
 			return filter_input(INPUT_GET, $name);
 		if (filter_input(INPUT_POST, $name) != NULL)
