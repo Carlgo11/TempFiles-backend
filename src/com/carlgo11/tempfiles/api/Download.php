@@ -15,9 +15,9 @@ class Download extends API {
 	 *
 	 * @param string $method HTTP method.
 	 */
-	public function __construct(string $method) {
+	public function __construct($method) {
 		try {
-			if ($method !== 'GET') throw new BadMethod("Bad method. Use GET.");
+			//if ($method !== 'GET') throw new BadMethod("Bad method. Use GET.");
 
 			$id = filter_var(Misc::getVar('id'), FILTER_VALIDATE_REGEXP, ["options" => ['regexp' => '/^D([0-9]|[A-z]){13}/']]);
 			$p = Misc::getVar('p');

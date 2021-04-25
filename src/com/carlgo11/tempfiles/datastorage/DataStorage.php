@@ -2,7 +2,6 @@
 
 namespace com\carlgo11\tempfiles\datastorage;
 
-use com\carlgo11\tempfiles\EncryptedFile;
 use com\carlgo11\tempfiles\Encryption;
 use com\carlgo11\tempfiles\exception\MissingEntry;
 use com\carlgo11\tempfiles\File;
@@ -31,25 +30,18 @@ class DataStorage {
 			$storage = DataStorage::getStorage();
 			$storedContent = $storage->getEntryContent($id);
 			$storedMetaData = $storage->getEntryMetaData($id);
-			$storedEncryptionData = $storage->getFileEncryptionData($id);
 			$storedViews = $storage->getEntryViews($id);
 		} catch (MissingEntry $ex) {
 			throw new MissingEntry();
 		}
 
-		$content = Encryption::decrypt(base64_decode($storedContent), $password, $storedEncryptionData['iv'][0], $storedEncryptionData['tag'][0]);
-		$metadata = explode(' ', Encryption::decrypt($storedMetaData, $password, $storedEncryptionData['iv'][1], $storedEncryptionData['tag'][1]));
-		$metadata = [
-			'name' => $metadata[0],
-			'size' => $metadata[1],
-			'type' => $metadata[2],
-			'delpass' => $metadata[3],
-		];
+		$content = Encryption::decrypt($storedContent, $password);
+		$metadata = explode(";", Encryption::decrypt($storedMetaData, $password));
 
 		$file = new File(NULL, $id);
 		$file->setContent($content);
-		$file->setDeletionPassword(base64_decode($metadata['delpass']));
-		$file->setMetaData(['size' => base64_decode($metadata['size']), 'name' => base64_decode($metadata['name']), 'type' => base64_decode($metadata['type'])]);
+		//$file->setDeletionPassword(base64_decode($metadata['delpass']));
+		$file->setMetaData(['size' => $metadata[0], 'name' => $metadata[1], 'type' => $metadata[2]]);
 		if ($storedViews !== NULL && sizeof($storedViews) === 2) {
 			$file->setCurrentViews($storedViews[0] + 1);
 			$file->setMaxViews($storedViews[1]);
@@ -88,13 +80,13 @@ class DataStorage {
 	public static function saveFile(File $file, string $password): bool {
 		$storage = DataStorage::getStorage();
 
-		include_once __DIR__ . '/../EncryptedFile.php';
-		$encryptedFile = new EncryptedFile();
-		$encryptedFile->setFileContent($file->getContent(), $password);
-		$encryptedFile->setFileMetaData($file->getMetaData(), $file, $password);
-		$encryptedFile->setID($file->getID());
+		$data = [
+			'id' => $file->getID(),
+			'content' => Encryption::encrypt($file->getContent(), $password),
+			'metadata' => Encryption::encrypt(implode(";", $file->getMetaData()), $password),
+		];
 
-		return $storage->saveEntry($encryptedFile, $password, [$file->getCurrentViews(), $file->getMaxViews()]);
+		return $storage->saveEntry($data, $password, [$file->getCurrentViews(), $file->getMaxViews()]);
 	}
 
 	/**

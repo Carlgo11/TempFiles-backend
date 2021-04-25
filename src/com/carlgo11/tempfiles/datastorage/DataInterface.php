@@ -16,7 +16,7 @@ interface DataInterface {
 	 * @since 2.5
 	 * @since 3.0 Throw {@see MissingEntry} exception instead of NULL.
 	 */
-	public function getEntryContent(string $id): ?string;
+	public function getEntryContent(string $id): ?array;
 
 	/**
 	 * Get encrypted metadata.
@@ -26,18 +26,18 @@ interface DataInterface {
 	 * @throws MissingEntry Throws {@see MissingEntry} exception if no entry with the ID exists.
 	 * @since 2.5
 	 */
-	public function getEntryMetaData(string $id): ?string;
+	public function getEntryMetaData(string $id): ?array;
 
 	/**
 	 * Save an uploaded entry.
 	 *
-	 * @param EncryptedFile $file {@see EncryptedFile} object to store
+	 * @param array $file {@see EncryptedFile} object to store
 	 * @param string $password Encryption key
 	 * @param array|null $views Views array containing current views and max views.
 	 * @return bool Returns true if file was successfully saved.
 	 * @since 2.5
 	 */
-	public function saveEntry(EncryptedFile $file, string $password, array $views = NULL): bool;
+	public function saveEntry(array $file, string $password, array $views = NULL): bool;
 
 	/**
 	 * See if an entry with the provided ID exists.

@@ -2,7 +2,6 @@
 
 namespace com\carlgo11\tempfiles\datastorage;
 
-use com\carlgo11\tempfiles\EncryptedFile;
 use com\carlgo11\tempfiles\exception\MissingEntry;
 use DateTime;
 
@@ -20,12 +19,12 @@ class FileStorage implements DataInterface {
 	 * Get encrypted content (file data) from a stored entry.
 	 *
 	 * @param string $id Unique ID of the stored entry.
-	 * @return string Returns base64 encoded, encrypted binary file data.
+	 * @return array Returns base64 encoded, encrypted binary file data.
 	 * @throws MissingEntry Throws {@see MissingEntry} exception if no entry with the ID exists.
 	 * @since 2.5
 	 * @since 3.0 Throw {@see MissingEntry} exception instead of NULL.
 	 */
-	public function getEntryContent(string $id): string {
+	public function getEntryContent(string $id): array {
 		if (!$this->entryExists($id)) throw new MissingEntry();
 		global $conf;
 
@@ -49,11 +48,11 @@ class FileStorage implements DataInterface {
 	 * Get encrypted metadata.
 	 *
 	 * @param string $id Unique ID of the stored entry.
-	 * @return String|null Returns an encrypted array (split ' ') containing: [0 => name, 1=> size, 2=> type, 3=> deletion password hash, 4=> view array]
-	 * @throws MissingEntry Throws {@see MissingEntry} exception if no entry with the ID exists.
+	 * @return array|null Returns an encrypted array (split ' ') containing: [0 => name, 1=> size, 2=> type, 3=> deletion password hash, 4=> view array]
+	 * @throws MissingEntry Throws <a href="psi_element://MissingEntry">MissingEntry</a> exception if no entry with the ID exists.
 	 * @since 2.5
 	 */
-	public function getEntryMetaData(string $id): ?string {
+	public function getEntryMetaData(string $id): ?array {
 		if (!$this->entryExists($id)) throw new MissingEntry();
 		global $conf;
 
@@ -80,42 +79,23 @@ class FileStorage implements DataInterface {
 	}
 
 	/**
-	 * Get file encryption details (IV, tags) of a stored entry.
-	 *
-	 * @param string $id Unique ID of the stored entry.
-	 * @return array
-	 * @throws MissingEntry Throws {@see MissingEntry} exception if no entry with the ID exists.
-	 * @since 2.5
-	 */
-	public function getFileEncryptionData(string $id): array {
-		if (!$this->entryExists($id)) throw new MissingEntry();
-		global $conf;
-
-		$file = file_get_contents($conf['file-path'] . $id);
-		$data = json_decode($file, TRUE);
-		return ['iv' => $data['iv'], 'tag' => $data['tag']];
-	}
-
-	/**
 	 * Save an uploaded entry.
 	 *
-	 * @param EncryptedFile $file {@see EncryptedFile} object to store
+	 * @param array $file object to store
 	 * @param string $password Encryption key
 	 * @param array|null $views Views array containing current views and max views.
 	 * @return bool Returns true if file was successfully saved.
 	 * @since 2.5
 	 */
-	public function saveEntry(EncryptedFile $file, string $password, array $views = NULL): bool {
+	public function saveEntry(array $file, string $password, array $views = NULL): bool {
 		global $conf;
-		$newFile = fopen($conf['file-path'] . $file, "w");
+		$newFile = fopen($conf['file-path'] . $file['id'], "w");
 
 		$expiry = (new DateTime('+1 day'))->getTimestamp();
 		$content = [
 			'expiry' => $expiry,
-			'metadata' => $file->getEncryptedMetaData(),
-			'iv' => $file->getIV(),
-			'tag' => $file->getTag(),
-			'content' => base64_encode($file->getEncryptedFileContent())
+			'metadata' => $file['metadata'],
+			'content' => $file['content']
 		];
 		if (isset($views)) $content['views'] = implode('/', $views);
 
@@ -159,7 +139,6 @@ class FileStorage implements DataInterface {
 	 *
 	 * @return array|false Returns an array of all stored entries.
 	 * @since 2.5
-	 * @deprecated Not used by DataStorage. Will be removed in the future.
 	 */
 	public function listEntries() {
 		global $conf;
