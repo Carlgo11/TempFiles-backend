@@ -19,11 +19,8 @@ class Delete extends API {
 		try {
 			if ($method !== 'DELETE') throw new BadMethod("Bad method. Use DELETE.");
 			$id = filter_var(Misc::getVar('id'), FILTER_VALIDATE_REGEXP, ["options" => ['regexp' => '/^D([0-9]|[A-z]){13}/']]);
-			$p = Misc::getVar('p');
-			$file = DataStorage::getFile($id, $p);
-			$deletionPassword = Misc::getVar('delete');
 
-			if (password_verify($deletionPassword, $file->getDeletionPassword()))
+			if (password_verify(Misc::getVar('delete'), DataStorage::getDeletionPassword($id)))
 				if (DataStorage::deleteFile($id)) http_response_code(200);
 				else throw new Exception("Unable to delete file");
 			else throw new MissingEntry("Bad ID or Password");

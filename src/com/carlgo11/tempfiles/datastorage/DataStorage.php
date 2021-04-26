@@ -40,7 +40,6 @@ class DataStorage {
 
 		$file = new File(NULL, $id);
 		$file->setContent($content);
-		//$file->setDeletionPassword(base64_decode($metadata['delpass']));
 		$file->setMetaData(['size' => $metadata[0], 'name' => $metadata[1], 'type' => $metadata[2]]);
 		if ($storedViews !== NULL && sizeof($storedViews) === 2) {
 			$file->setCurrentViews($storedViews[0] + 1);
@@ -78,15 +77,13 @@ class DataStorage {
 	 * @since 2.5
 	 */
 	public static function saveFile(File $file, string $password): bool {
-		$storage = DataStorage::getStorage();
-
 		$data = [
 			'id' => $file->getID(),
 			'content' => Encryption::encrypt($file->getContent(), $password),
 			'metadata' => Encryption::encrypt(implode(";", $file->getMetaData()), $password),
 		];
 
-		return $storage->saveEntry($data, $password, [$file->getCurrentViews(), $file->getMaxViews()]);
+		return DataStorage::getStorage()->saveEntry($data, $password, $file->getDeletionPassword(), [$file->getCurrentViews(), $file->getMaxViews()]);
 	}
 
 	/**
@@ -112,8 +109,7 @@ class DataStorage {
 	 * @since 2.5
 	 */
 	public static function deleteFile(string $id): bool {
-		$storage = DataStorage::getStorage();
-		return $storage->deleteEntry($id);
+		return DataStorage::getStorage()->deleteEntry($id);
 	}
 
 	/**
@@ -126,7 +122,10 @@ class DataStorage {
 	 * @since 3.0
 	 */
 	public static function updateViews(string $id, int $currentViews): bool {
-		$storage = DataStorage::getStorage();
-		return $storage->updateEntryViews($id, $currentViews);
+		return DataStorage::getStorage()->updateEntryViews($id, $currentViews);
+	}
+
+	public static function getDeletionPassword(string $id): string {
+		 return DataStorage::getStorage()->getDelPassword($id);
 	}
 }

@@ -33,11 +33,12 @@ interface DataInterface {
 	 *
 	 * @param array $file {@see EncryptedFile} object to store
 	 * @param string $password Encryption key
+	 * @param string $deletionPassword Deletion password hash.
 	 * @param array|null $views Views array containing current views and max views.
 	 * @return bool Returns true if file was successfully saved.
 	 * @since 2.5
 	 */
-	public function saveEntry(array $file, string $password, array $views = NULL): bool;
+	public function saveEntry(array $file, string $password, string $deletionPassword, array $views = NULL): bool;
 
 	/**
 	 * See if an entry with the provided ID exists.
@@ -76,4 +77,6 @@ interface DataInterface {
 	 * @deprecated Not used by DataStorage. Will be removed in the future.
 	 */
 	public function listEntries();
+
+	public function getDelPassword(string $id);
 }

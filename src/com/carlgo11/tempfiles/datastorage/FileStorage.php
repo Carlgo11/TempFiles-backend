@@ -83,23 +83,27 @@ class FileStorage implements DataInterface {
 	 *
 	 * @param array $file object to store
 	 * @param string $password Encryption key
+	 * @param string $deletionPassword Deletion password hash.
 	 * @param array|null $views Views array containing current views and max views.
 	 * @return bool Returns true if file was successfully saved.
 	 * @since 2.5
 	 */
-	public function saveEntry(array $file, string $password, array $views = NULL): bool {
+	public function saveEntry(array $file, string $password, string $deletionPassword, array $views = NULL): bool {
 		global $conf;
 		$newFile = fopen($conf['file-path'] . $file['id'], "w");
 
 		$expiry = (new DateTime('+1 day'))->getTimestamp();
-		$content = [
+		$data = [
 			'expiry' => $expiry,
 			'metadata' => $file['metadata'],
-			'content' => $file['content']
+			'delpass' => $deletionPassword,
 		];
-		if (isset($views)) $content['views'] = implode('/', $views);
+		if (isset($views)) $data['views'] = implode('/', $views);
 
-		$txt = json_encode($content, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+		// Add file content to the array.
+		$data['content'] = $file['content'];
+
+		$txt = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 		fwrite($newFile, $txt);
 		return fclose($newFile);
 	}
@@ -163,5 +167,13 @@ class FileStorage implements DataInterface {
 		$txt = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 		fwrite($newFile, $txt);
 		return fclose($newFile);
+	}
+
+	public function getDelPassword(string $id) {
+		if (!$this->entryExists($id)) throw new MissingEntry();
+		global $conf;
+
+		$file = file_get_contents($conf['file-path'] . $id);
+		return json_decode($file, TRUE)['delpass'];
 	}
 }
