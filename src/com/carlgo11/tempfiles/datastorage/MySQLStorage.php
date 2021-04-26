@@ -2,7 +2,6 @@
 
 namespace com\carlgo11\tempfiles\datastorage;
 
-use com\carlgo11\tempfiles\EncryptedFile;
 use com\carlgo11\tempfiles\exception\MissingEntry;
 use DateTime;
 use mysqli;
@@ -13,7 +12,7 @@ class MySQLStorage implements DataInterface {
 
 	public function __construct() {
 		global $conf;
-		$this->_mysql = new mysqli($conf['MYSQL_HOST'], $conf['MYSQL_USER'], $conf['MYSQL_PASSWORD'], $conf['MYSQL_DATABASE'], $conf['MYSQL_PORT'])  or die("!!!!!!!!!!!!!!!! error: "+mysqli_error($this->_mysql));
+		$this->_mysql = new mysqli($conf['MYSQL_HOST'], $conf['MYSQL_USER'], $conf['MYSQL_PASSWORD'], $conf['MYSQL_DATABASE'], $conf['MYSQL_PORT']) or die("error: " + mysqli_error($this->_mysql));
 	}
 
 	public function __destruct() {
@@ -29,7 +28,7 @@ class MySQLStorage implements DataInterface {
 	 * @since 2.5
 	 * @since 3.0 Throw {@see MissingEntry} exception instead of NULL.
 	 */
-	public function getEntryContent(string $id): ?string {
+	public function getEntryContent(string $id): ?array {
 		// TODO: Implement getEntryContent() method.
 	}
 
@@ -41,33 +40,50 @@ class MySQLStorage implements DataInterface {
 	 * @throws MissingEntry Throws {@see MissingEntry} exception if no entry with the ID exists.
 	 * @since 2.5
 	 */
-	public function getEntryMetaData(string $id): ?string {
+	public function getEntryMetaData(string $id): ?array {
 		// TODO: Implement getEntryMetaData() method.
 	}
 
 	/**
 	 * Save an uploaded entry.
 	 *
-	 * @param EncryptedFile $file {@see EncryptedFile} object to store
-	 * @param string $password Encryption key
+	 * @param array $file {@see EncryptedFile} object to store.
+	 * @param string $password Encryption key.
+	 * @param string $deletionPassword Deletion password hash.
 	 * @param array|null $views Views array containing current views and max views.
 	 * @return bool Returns true if file was successfully saved.
 	 * @since 2.5
+	 * @since 3.0 Split into 3 tables
 	 */
-	public function saveEntry(EncryptedFile $file, string $password, array $views = NULL): bool {
+	public function saveEntry(array $file, string $password, string $deletionPassword, array $views = NULL): bool {
+
+		// INSERT INTO MAIN TABLE
 		$expiry = (new DateTime('+1 day'))->getTimestamp();
-		$query = $this->_mysql->prepare("INSERT INTO `main` (`id`, `expiry`, `views`, `metadata`) VALUES (?, ?, ?, ?);");
+		$query = $this->_mysql->prepare("INSERT INTO `main` (`id`, `expiry`, `views`, `delpass`) VALUES (?, ?, ?, ?);");
 		$views_str = implode('/', $views);
-		$meta = $file->getEncryptedMetaData();
-		$query->bind_param('siss', $file, $expiry, $views_str, $meta);
-		error_log($this->_mysql->error);
-		error_log($query->error);
-		//$query->send_long_data(0, $file->getEncryptedFileContent());
-		$result = $query->execute();
-		error_log($this->_mysql->error);
-		error_log($query->error);
+		$query->bind_param('siss', $file['id'], $expiry, $views_str, $deletionPassword);
+		$result[] = $query->execute();
 		$query->close();
-		return $result;
+
+		// INSERT CONTENT
+		foreach ($file['content'] as $part => $content) {
+			$query = $this->_mysql->prepare("INSERT INTO `content`  (`id`, `part`, `data`) VALUES (?, ?, ?)");
+			$query->bind_param('ss', $file['id'], $part);
+			$query->send_long_data(3, $content);
+			$result[] = $query->execute();
+			$query->close();
+		}
+
+		// INSERT METADATA
+		foreach ($file['metadata'] as $part => $content) {
+			$query = $this->_mysql->prepare("INSERT INTO `metadata`  (`id`, `part`, `data`) VALUES (?, ?, ?)");
+			$query->bind_param('ss', $file['id'], $part);
+			$query->send_long_data(3, $content);
+			$result[] = $query->execute();
+			$query->close();
+		}
+
+		return in_array(FALSE, $result);
 	}
 
 	/**
@@ -114,5 +130,9 @@ class MySQLStorage implements DataInterface {
 	 */
 	public function listEntries() {
 		// TODO: Implement listEntries() method.
+	}
+
+	public function getDelPassword(string $id) {
+		// TODO: Implement getDelPassword() method.
 	}
 }
