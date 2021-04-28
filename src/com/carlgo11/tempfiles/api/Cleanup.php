@@ -17,7 +17,7 @@ class Cleanup extends API {
 	 */
 	public function __construct($method) {
 		try {
-			if ($method !== 'DELETE') throw new BadMethod("Bad method. Use DELETE.");
+			if ($method !== 'DELETE') throw new BadMethod('Bad method. Use DELETE.');
 			DataStorage::deleteOldFiles();
 			http_response_code(204);
 		} catch (Exception $e) {

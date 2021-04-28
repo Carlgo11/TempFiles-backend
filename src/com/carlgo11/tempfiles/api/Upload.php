@@ -18,8 +18,8 @@ class Upload extends API {
 	function __construct($method) {
 		global $conf;
 		try {
-			if ($method !== 'POST') throw new BadMethod("Bad method. Use POST.");
-			if (!isset($_FILES['file']) || $_FILES['file'] === NULL) throw new Exception("No file uploaded.");
+			if ($method !== 'POST') throw new BadMethod('Bad method. Use POST.');
+			if (!isset($_FILES['file']) || $_FILES['file'] === NULL) throw new Exception('No file uploaded.');
 
 			$fileArray = $_FILES['file'];
 			$file = new File($fileArray);
@@ -47,14 +47,14 @@ class Upload extends API {
 				'type' => $fileArray['type']
 			]);
 
-			if (!DataStorage::saveFile($file, $password)) throw new Exception("File-storing failed.");
+			if (!DataStorage::saveFile($file, $password)) throw new Exception('File-storing failed.');
 
 			$output = array_merge($output, [
 				'url' => sprintf($conf['download-url'], $file->getID(), $password),
 				'id' => $file->getID(),
 				'deletepassword' => $deletionPassword]);
 
-			syslog(LOG_INFO, $output['id'] . " created.");
+			syslog(LOG_INFO, $output['id'] . ' created.');
 			return parent::outputJSON($output, 201);
 		} catch (Exception $e) {
 			parent::outputJSON(['error' => $e->getMessage()], $e->getCode() ?: 400);

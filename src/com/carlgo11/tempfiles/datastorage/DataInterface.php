@@ -32,13 +32,12 @@ interface DataInterface {
 	 * Save an uploaded entry.
 	 *
 	 * @param array $file {@see EncryptedFile} object to store
-	 * @param string $password Encryption key
 	 * @param string $deletionPassword Deletion password hash.
 	 * @param array|null $views Views array containing current views and max views.
 	 * @return bool Returns true if file was successfully saved.
 	 * @since 2.5
 	 */
-	public function saveEntry(array $file, string $password, string $deletionPassword, array $views = NULL): bool;
+	public function saveEntry(array $file, string $deletionPassword, array $views = NULL): bool;
 
 	/**
 	 * See if an entry with the provided ID exists.

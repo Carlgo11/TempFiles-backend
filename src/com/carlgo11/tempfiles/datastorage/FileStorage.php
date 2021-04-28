@@ -82,13 +82,12 @@ class FileStorage implements DataInterface {
 	 * Save an uploaded entry.
 	 *
 	 * @param array $file object to store
-	 * @param string $password Encryption key
 	 * @param string $deletionPassword Deletion password hash.
 	 * @param array|null $views Views array containing current views and max views.
 	 * @return bool Returns true if file was successfully saved.
 	 * @since 2.5
 	 */
-	public function saveEntry(array $file, string $password, string $deletionPassword, array $views = NULL): bool {
+	public function saveEntry(array $file, string $deletionPassword, array $views = NULL): bool {
 		global $conf;
 		$newFile = fopen($conf['file-path'] . $file['id'], "w");
 
@@ -160,7 +159,7 @@ class FileStorage implements DataInterface {
 	public function updateEntryViews(string $id, int $currentViews): bool {
 		global $conf;
 		$file = file_get_contents($conf['file-path'] . $id);
-		$newFile = fopen($conf['file-path'] . $id, "w");
+		$newFile = fopen($conf['file-path'] . $id, 'w');
 		$data = json_decode($file, TRUE);
 		$views = explode('/', $data['views']);
 		$data['views'] = "$currentViews/$views[1]";

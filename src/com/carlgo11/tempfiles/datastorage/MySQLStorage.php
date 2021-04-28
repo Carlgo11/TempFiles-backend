@@ -12,7 +12,7 @@ class MySQLStorage implements DataInterface {
 
 	public function __construct() {
 		global $conf;
-		$this->_mysql = new mysqli($conf['MYSQL_HOST'], $conf['MYSQL_USER'], $conf['MYSQL_PASSWORD'], $conf['MYSQL_DATABASE'], $conf['MYSQL_PORT']) or die("error: " + mysqli_error($this->_mysql));
+		$this->_mysql = new mysqli($conf['MYSQL_HOST'], $conf['MYSQL_USER'], $conf['MYSQL_PASSWORD'], $conf['MYSQL_DATABASE'], $conf['MYSQL_PORT']) or die('error: ' + mysqli_error($this->_mysql));
 	}
 
 	public function __destruct() {
@@ -48,14 +48,14 @@ class MySQLStorage implements DataInterface {
 	 * Save an uploaded entry.
 	 *
 	 * @param array $file {@see EncryptedFile} object to store.
-	 * @param string $password Encryption key.
+	 * @param string $key Encryption key.
 	 * @param string $deletionPassword Deletion password hash.
 	 * @param array|null $views Views array containing current views and max views.
 	 * @return bool Returns true if file was successfully saved.
 	 * @since 2.5
 	 * @since 3.0 Split into 3 tables
 	 */
-	public function saveEntry(array $file, string $password, string $deletionPassword, array $views = NULL): bool {
+	public function saveEntry(array $file, string $key, string $deletionPassword, array $views = NULL): bool {
 
 		// INSERT INTO MAIN TABLE
 		$expiry = (new DateTime('+1 day'))->getTimestamp();

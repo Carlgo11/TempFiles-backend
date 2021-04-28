@@ -83,7 +83,7 @@ class DataStorage {
 			'metadata' => Encryption::encrypt(implode(";", $file->getMetaData()), $password),
 		];
 
-		return DataStorage::getStorage()->saveEntry($data, $password, $file->getDeletionPassword(), [$file->getCurrentViews(), $file->getMaxViews()]);
+		return DataStorage::getStorage()->saveEntry($data, $file->getDeletionPassword(), [$file->getCurrentViews(), $file->getMaxViews()]);
 	}
 
 	/**

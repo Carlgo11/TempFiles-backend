@@ -29,7 +29,7 @@ class Encryption {
 		foreach ($input as $part) {
 			$iv = self::createIV($cipher);
 			$encrypted = openssl_encrypt($part, $cipher, $password, OPENSSL_RAW_DATA, $iv, $tag);
-			$output[] = implode("&", [base64_encode($encrypted), base64_encode($iv), base64_encode($tag)]);
+			$output[] = implode('&', [base64_encode($encrypted), base64_encode($iv), base64_encode($tag)]);
 		}
 		return $output;
 	}
