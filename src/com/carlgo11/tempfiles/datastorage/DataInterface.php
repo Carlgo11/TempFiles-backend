@@ -74,7 +74,6 @@ interface DataInterface {
 	 *
 	 * @return array|false Returns an array of all stored entries.
 	 * @since 2.5
-	 * @deprecated Not used by DataStorage. Will be removed in the future.
 	 */
 	public function listEntries();
 

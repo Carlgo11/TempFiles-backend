@@ -23,7 +23,7 @@ class Download extends API {
 			$p = Misc::getVar('p');
 			$file = DataStorage::getFile($id, $p);
 
-			if (isset($file) && $file !== FALSE) {
+			if (isset($file)) {
 				$metadata = $file->getMetaData();
 				$content = base64_encode($file->getContent());
 				parent::outputJSON([

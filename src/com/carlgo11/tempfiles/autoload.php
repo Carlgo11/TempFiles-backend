@@ -30,8 +30,8 @@ checkFile(__DIR__ . '/Misc.php');
 checkFile(__DIR__ . '/File.php');
 checkFile(__DIR__ . '/api/API.php');
 checkFile(__DIR__ . '/datastorage/DataStorage.php');
-checkFile(__DIR__ . '/Exceptions/BadMethod.php');
-checkFile(__DIR__ . '/Exceptions/MissingEntry.php');
+checkFile(__DIR__ . '/exceptions/BadMethod.php');
+checkFile(__DIR__ . '/exceptions/MissingEntry.php');
 
 createDirectory($conf['file-path']);
 
