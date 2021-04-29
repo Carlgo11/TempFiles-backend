@@ -102,9 +102,9 @@ class FileStorage implements DataInterface {
 		// Add file content to the array.
 		$data['content'] = $file['content'];
 
-		$txt = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-		fwrite($newFile, $txt);
-		return fclose($newFile);
+		$write = fwrite($newFile, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+		fclose($newFile);
+		return ($write !== FALSE);
 	}
 
 	/**
@@ -163,11 +163,18 @@ class FileStorage implements DataInterface {
 		$data = json_decode($file, TRUE);
 		$views = explode('/', $data['views']);
 		$data['views'] = "$currentViews/$views[1]";
-		$txt = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-		fwrite($newFile, $txt);
-		return fclose($newFile);
+		$write = fwrite($newFile, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+		fclose($newFile);
+		return ($write !== FALSE);
 	}
 
+	/**
+	 * Get Deletion password hash.
+	 *
+	 * @param string $id ID of the entry.
+	 * @throws MissingEntry Throws {@see MissingEntry} exception if no entry with the ID exists.
+	 * @since 3.0
+	 */
 	public function getDelPassword(string $id) {
 		if (!$this->entryExists($id)) throw new MissingEntry();
 		global $conf;

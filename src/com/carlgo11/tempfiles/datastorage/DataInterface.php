@@ -2,7 +2,6 @@
 
 namespace com\carlgo11\tempfiles\datastorage;
 
-use com\carlgo11\tempfiles\EncryptedFile;
 use com\carlgo11\tempfiles\exception\MissingEntry;
 
 interface DataInterface {
@@ -11,7 +10,7 @@ interface DataInterface {
 	 * Get encrypted content (file data) from a stored entry.
 	 *
 	 * @param string $id Unique ID of the stored entry.
-	 * @return string Returns base64 encoded, encrypted binary file data.
+	 * @return array|null Returns base64 encoded, encrypted binary file data.
 	 * @throws MissingEntry Throws {@see MissingEntry} exception if no entry with the ID exists.
 	 * @since 2.5
 	 * @since 3.0 Throw {@see MissingEntry} exception instead of NULL.
@@ -22,7 +21,7 @@ interface DataInterface {
 	 * Get encrypted metadata.
 	 *
 	 * @param string $id Unique ID of the stored entry.
-	 * @return String|null Returns an encrypted array (split ' ') containing: [0 => name, 1=> size, 2=> type, 3=> deletion password hash, 4=> view array]
+	 * @return array|null Returns an encrypted array (split ' ') containing: [0 => name, 1=> size, 2=> type, 3=> deletion password hash, 4=> view array]
 	 * @throws MissingEntry Throws {@see MissingEntry} exception if no entry with the ID exists.
 	 * @since 2.5
 	 */
@@ -76,5 +75,12 @@ interface DataInterface {
 	 */
 	public function listEntries();
 
+	/**
+	 * Get Deletion password hash.
+	 *
+	 * @param string $id ID of the entry.
+	 * @throws MissingEntry Throws {@see MissingEntry} exception if no entry with the ID exists.
+	 * @since 3.0
+	 */
 	public function getDelPassword(string $id);
 }
