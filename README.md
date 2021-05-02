@@ -3,7 +3,7 @@
 [![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/carlgo11/tempfiles-backend?style=for-the-badge)](https://github.com/Carlgo11/TempFiles-backend/releases)
 [![Docker](https://img.shields.io/badge/Docker-Download-2496ed?style=for-the-badge&logo=docker&logoColor=fff)](https://hub.docker.com/r/carlgo11/tempfiles-backend)
 ## API calls :mega:
-A list of available API calls can be found over at [Postman](https://documenter.getpostman.com/view/1675224/SW7ezkZn).
+A list of available API calls can be found over at [Postman](https://documenter.getpostman.com/view/TzK2bEsi).
 
 ## Deployment via Docker Compose
 1. Set up a new directory for TempFiles  
