@@ -43,6 +43,5 @@ if ($conf['storage'] === 'MySQL') {
 	$conf['MYSQL_USER'] = str_replace('"', "",$_ENV['MYSQL_USER']);
 	$conf['MYSQL_PASSWORD'] = str_replace('"', "",$_ENV['MYSQL_PASSWORD']);
 	$conf['MYSQL_DATABASE'] = str_replace('"', "",$_ENV['MYSQL_DATABASE']);
-	$mysql = new mysqli($conf['MYSQL_HOST'], $conf['MYSQL_USER'], $conf['MYSQL_PASSWORD'], $conf['MYSQL_DATABASE'], $conf['MYSQL_PORT']) or die(mysqli_error($mysql));
-
+	$mysql = new mysqli($conf['MYSQL_HOST'], $conf['MYSQL_USER'], $conf['MYSQL_PASSWORD'], $conf['MYSQL_DATABASE'], $conf['MYSQL_PORT']) or error_log(mysqli_error($mysql));
 }

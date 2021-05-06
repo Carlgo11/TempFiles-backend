@@ -11,8 +11,8 @@ class MySQLStorage implements DataInterface {
 	protected mysqli $_mysql;
 
 	public function __construct() {
-		global $conf;
-		$this->_mysql = new mysqli($conf['MYSQL_HOST'], $conf['MYSQL_USER'], $conf['MYSQL_PASSWORD'], $conf['MYSQL_DATABASE'], $conf['MYSQL_PORT']) or die('error: ' + mysqli_error($this->_mysql));
+		global $mysql;
+		$this->_mysql = $mysql;
 	}
 
 	public function __destruct() {
@@ -23,8 +23,7 @@ class MySQLStorage implements DataInterface {
 	 * Get encrypted content (file data) from a stored entry.
 	 *
 	 * @param string $id Unique ID of the stored entry.
-	 * @return string Returns base64 encoded, encrypted binary file data.
-	 * @throws MissingEntry Throws {@see MissingEntry} exception if no entry with the ID exists.
+	 * @return array Returns base64 encoded, encrypted binary file data.
 	 * @since 2.5
 	 * @since 3.0 Throw {@see MissingEntry} exception instead of NULL.
 	 */
@@ -36,8 +35,6 @@ class MySQLStorage implements DataInterface {
 	 * Get encrypted metadata.
 	 *
 	 * @param string $id Unique ID of the stored entry.
-	 * @return String|null Returns an encrypted array (split ' ') containing: [0 => name, 1=> size, 2=> type, 3=> deletion password hash, 4=> view array]
-	 * @throws MissingEntry Throws {@see MissingEntry} exception if no entry with the ID exists.
 	 * @since 2.5
 	 */
 	public function getEntryMetaData(string $id): ?array {
@@ -48,42 +45,44 @@ class MySQLStorage implements DataInterface {
 	 * Save an uploaded entry.
 	 *
 	 * @param array $file {@see EncryptedFile} object to store.
-	 * @param string $key Encryption key.
 	 * @param string $deletionPassword Deletion password hash.
 	 * @param array|null $views Views array containing current views and max views.
 	 * @return bool Returns true if file was successfully saved.
 	 * @since 2.5
 	 * @since 3.0 Split into 3 tables
 	 */
-	public function saveEntry(array $file, string $key, string $deletionPassword, array $views = NULL): bool {
-
+	public function saveEntry(array $file, string $deletionPassword, array $views = NULL): bool {
+		global $mysql;
+		$null = NULL;
 		// INSERT INTO MAIN TABLE
 		$expiry = (new DateTime('+1 day'))->getTimestamp();
-		$query = $this->_mysql->prepare("INSERT INTO `main` (`id`, `expiry`, `views`, `delpass`) VALUES (?, ?, ?, ?);");
-		$views_str = implode('/', $views);
+		if ($views !== NULL)
+			$views_str = implode('/', $views);
+		else
+			$views_str = NULL;
+		$query = $mysql->prepare("INSERT INTO `main` (`id`, `expiry`, `views`, `delpass`) VALUES (?, ?, ?, ?)");
 		$query->bind_param('siss', $file['id'], $expiry, $views_str, $deletionPassword);
 		$result[] = $query->execute();
 		$query->close();
 
 		// INSERT CONTENT
 		foreach ($file['content'] as $part => $content) {
-			$query = $this->_mysql->prepare("INSERT INTO `content`  (`id`, `part`, `data`) VALUES (?, ?, ?)");
-			$query->bind_param('ss', $file['id'], $part);
-			$query->send_long_data(3, $content);
+			$query = $mysql->prepare("INSERT INTO `content`  (`id`, `part`, `data`) VALUES (?, ?, ?)");
+			$query->bind_param('sib', $file['id'], $part, $null);
+			$query->send_long_data(2, $content);
 			$result[] = $query->execute();
 			$query->close();
 		}
 
 		// INSERT METADATA
 		foreach ($file['metadata'] as $part => $content) {
-			$query = $this->_mysql->prepare("INSERT INTO `metadata`  (`id`, `part`, `data`) VALUES (?, ?, ?)");
-			$query->bind_param('ss', $file['id'], $part);
-			$query->send_long_data(3, $content);
+			$query = $mysql->prepare("INSERT INTO `metadata`  (`id`, `part`, `data`) VALUES (?, ?, ?)");
+			$query->bind_param('sis', $file['id'], $part, $content);
+			//$query->send_long_data(3, $content);
 			$result[] = $query->execute();
 			$query->close();
 		}
-
-		return in_array(FALSE, $result);
+		return !in_array(FALSE, $result);
 	}
 
 	/**
@@ -102,7 +101,6 @@ class MySQLStorage implements DataInterface {
 	 *
 	 * @param string $id Unique ID of the entry to delete.
 	 * @return bool Returns true if stored entry successfully deleted.
-	 * @throws MissingEntry Throws {@see MissingEntry} exception if no entry with the ID exists.
 	 * @since 2.5
 	 */
 	public function deleteEntry(string $id): bool {
@@ -114,7 +112,6 @@ class MySQLStorage implements DataInterface {
 	 *
 	 * @param string $id Unique ID of the entry.
 	 * @return string Returns the timestamp as a string.
-	 * @throws MissingEntry Throws {@see MissingEntry} exception if no entry with the ID exists.
 	 * @since 2.5
 	 */
 	public function getEntryExpiry(string $id): string {
@@ -124,7 +121,6 @@ class MySQLStorage implements DataInterface {
 	/**
 	 * Get all stored entry IDs
 	 *
-	 * @return array|false Returns an array of all stored entries.
 	 * @since 2.5
 	 * @deprecated Not used by DataStorage. Will be removed in the future.
 	 */
