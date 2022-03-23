@@ -1,5 +1,5 @@
-FROM php:7.4-alpine AS Test
-RUN apk add --no-cache composer
+FROM php:fpm-alpine AS Test
+COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
 RUN docker-php-ext-install mysqli
 RUN docker-php-ext-enable mysqli
 USER 1000:1000
@@ -8,8 +8,8 @@ WORKDIR /test
 RUN composer install --no-plugins --no-scripts --no-cache -n -o -v
 RUN ./vendor/bin/phpunit --configuration phpunit.xml
 
-FROM php:7.4-alpine AS Build
-RUN apk add --no-cache composer
+FROM php:fpm-alpine AS Build
+COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
 WORKDIR /api
 RUN docker-php-ext-install mysqli
 RUN docker-php-ext-enable mysqli
@@ -21,7 +21,7 @@ COPY --chown=1000:1000 ["composer.json", "robots.txt", "Download.php", "./"]
 RUN composer install --no-dev --no-plugins --no-scripts --no-cache -n -o -v
 RUN rm composer.json
 
-FROM php:7-fpm-alpine AS Run
+FROM php:fpm-alpine AS Run
 WORKDIR /api
 COPY --from=Build --chown=1000:1000 /api /api
 RUN apk add nginx php-mysqli
