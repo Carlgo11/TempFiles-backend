@@ -1,7 +1,7 @@
 # TempFiles Backend
-[![GitHub](https://img.shields.io/github/license/carlgo11/tempfiles-backend?style=for-the-badge)](https://github.com/Carlgo11/TempFiles-backend/blob/master/LICENSE)
-[![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/carlgo11/tempfiles-backend?style=for-the-badge)](https://github.com/Carlgo11/TempFiles-backend/releases)
-[![Docker](https://img.shields.io/badge/Docker-Download-2496ed?style=for-the-badge&logo=docker&logoColor=fff)](https://hub.docker.com/r/carlgo11/tempfiles-backend)
+[![GitHub](https://img.shields.io/github/license/tempfiles-download/Backend?style=for-the-badge)](https://github.com/tempfiles-download/Backend/blob/master/LICENSE)
+[![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/tempfiles-download/Backend?style=for-the-badge)](https://github.com/tempfiles-download/Backend/releases)
+[![Docker](https://img.shields.io/badge/Docker-Download-2496ed?style=for-the-badge&logo=docker&logoColor=fff)](https://hub.docker.com/r/tempfiles/backend)
 ## API calls :mega:
 A list of available API calls can be found over at [Postman](https://documenter.getpostman.com/view/TzK2bEsi).
 
@@ -16,8 +16,8 @@ A list of available API calls can be found over at [Postman](https://documenter.
     Set up a virtual server config for nginx to use.
     ```BASH
     mkdir resources
-    curl https://raw.githubusercontent.com/Carlgo11/TempFiles-backend/master/resources/nginx.conf > nginx.conf
-    curl https://raw.githubusercontent.com/Carlgo11/TempFiles-backend/master/resources/php.ini > php.ini
+    curl https://raw.githubusercontent.com/tempfiles-download/Backend/master/resources/nginx.conf > nginx.conf
+    curl https://raw.githubusercontent.com/tempfiles-download/Backend/master/resources/php.ini > php.ini
     ```
 
 1. Create a docker-compose.yml file.  
@@ -30,7 +30,7 @@ A list of available API calls can be found over at [Postman](https://documenter.
    version: '3.2'
    services:
      tmpfiles:
-       image: carlgo11/tempfiles-backend
+       image: tempfiles/backend
        ports:
        - "5392:5392"
        - "5393:5393"
@@ -94,8 +94,8 @@ Here's how to set up TempFiles-Backend directly on a Linux server:
 
 1. Download the source code  
    ```BASH
-   git clone https://github.com/Carlgo11/Tempfiles-backend.git
-   cd Tempfiles-backend/
+   git clone https://github.com/tempfiles-download/Backend.git 
+   cd Backend/
    ```
 
 1. Download dependencies  
@@ -136,12 +136,12 @@ Here's how to set up TempFiles-Backend directly on a Linux server:
    ```
 
 ## Environment variables
-|Name|Default Value|Type|Description|
-|----|-------------|----|-----------|
-|TMP_PATH|/tmp/tempfiles|String|Path where encrypted files should be saved to|
-|TMP_MAX_SIZE|128M|String|Max file size|
-|TMP_ENCRYPTION_ALGO|aes-256-gcm|String|File encryption algorithm|
-|TMP_STORAGE_METHOD|File|String|Storage method. Available methods are: File, MySQL|
-|TMP_HASH_COST|10|Integer|Bcrypt hashing cost. Only used for hashing deletion password.|
-|TMP_DOWNLOAD_URL|https://d.carlgo11.com/%1$$s/?p=%2$$s|String|URL where the user can download the file. `%1$$s`=ID `%2$$s`=Password|
-|TMP_404_URL|https://tempfiles.download/download/?404=1|String|URL to redirect to if a file can't be downloaded.|
+|Name| Default Value                                   |Type|Description|
+|----|-------------------------------------------------|----|-----------|
+|TMP_PATH| /tmp/tempfiles                                  |String|Path where encrypted files should be saved to|
+|TMP_MAX_SIZE| 128M                                            |String|Max file size|
+|TMP_ENCRYPTION_ALGO| aes-256-gcm                                     |String|File encryption algorithm|
+|TMP_STORAGE_METHOD| File                                            |String|Storage method. Available methods are: File, MySQL|
+|TMP_HASH_COST| 10                                              |Integer|Bcrypt hashing cost. Only used for hashing deletion password.|
+|TMP_DOWNLOAD_URL| https://d.tempfiles.download/%1$$s/?p=%2$$s |String|URL where the user can download the file. `%1$$s`=ID `%2$$s`=Password|
+|TMP_404_URL| https://tempfiles.download/download/?404=1      |String|URL to redirect to if a file can't be downloaded.|
