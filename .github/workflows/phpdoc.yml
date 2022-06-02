@@ -1,0 +1,27 @@
+name: Publish Documentation
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  phpdoc:
+    name: PHPDoc
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Build Documentation
+        run: docker run --rm -v $(pwd):/data phpdoc/phpdoc:3 -d ./src -t ./phpdoc
+
+      - name: Publish Documentation
+        uses: crazy-max/ghaction-github-pages@v3
+        with:
+          target_branch: phpdoc
+          build_dir: phpdoc
+          jekyll: false
+          fqdn: ${{ secrets.DOMAIN }}
+          commit_message: "Deploy ${{GITHUB.SHA}}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
