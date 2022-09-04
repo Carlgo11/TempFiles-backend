@@ -13,7 +13,7 @@ USE `tempfiles`;
 --
 CREATE TABLE IF NOT EXISTS `main`
 (
-    `id`      varchar(14) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+    `id`      varchar(15) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
     `expiry`  varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
     `views`   tinytext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
     `delpass` varchar(60) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS `main`
 --
 CREATE TABLE IF NOT EXISTS `content`
 (
-    `id`   varchar(14) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+    `id`   varchar(15) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
     `part` tinyint                                                      NOT NULL,
     `data` mediumblob                                                   NOT NULL,
     PRIMARY KEY (`id`)
@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS `content`
 --
 CREATE TABLE IF NOT EXISTS `metadata`
 (
-    `id`   varchar(14) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+    `id`   varchar(15) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
     `part` tinyint                                                      NOT NULL,
     `data` mediumtext                                                   NOT NULL,
     PRIMARY KEY (`id`)

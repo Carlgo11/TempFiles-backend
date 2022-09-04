@@ -44,9 +44,11 @@ class File {
 	 *
 	 * @return boolean Returns TRUE if the action was successfully executed, otherwise FALSE.
 	 * @since 2.2
+	 * @since 2.5 2nd char is now Server Identifier.
 	 */
 	private function generateID(): bool {
-		return is_string($this->_id = strtoupper(uniqid("d")));
+		global $conf;
+		return is_string($this->_id = strtoupper(uniqid("d${conf['server-id']}")));
 	}
 
 	/**
