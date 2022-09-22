@@ -20,7 +20,7 @@ class Download extends API {
 			if ($method !== 'GET') throw new BadMethod('Bad method. Use GET.');
 
 			$url = explode('/', $_SERVER['REQUEST_URI']);
-			$id = filter_var(strtoupper($url[2]), FILTER_VALIDATE_REGEXP, ['options' => ['regexp' => '/^D([0-9]|[A-Z]){13}/']]);
+			$id = filter_var(strtoupper($url[2]), FILTER_VALIDATE_REGEXP, ['options' => ['regexp' => '/^D([0-9]|[A-Z]){14}/']]);
 			$password = filter_var($url[3]);
 			$file = DataStorage::getFile($id, $password);
 			$metadata = $file->getMetaData();

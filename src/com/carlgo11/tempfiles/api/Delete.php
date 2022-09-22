@@ -18,7 +18,7 @@ class Delete extends API {
 		try {
 			if ($method !== 'DELETE') throw new BadMethod('Bad method. Use DELETE.');
 			$url = explode('/', strtoupper($_SERVER['REQUEST_URI']));
-			$id = filter_var($url[2], FILTER_VALIDATE_REGEXP, ['options' => ['regexp' => '/^D([0-9]|[A-z]){13}/']]);
+			$id = filter_var($url[2], FILTER_VALIDATE_REGEXP, ['options' => ['regexp' => '/^D([0-9]|[A-z]){14}/']]);
 			$password = filter_var($url[3]);
 
 			if (password_verify($password, DataStorage::getDeletionPassword($id)))

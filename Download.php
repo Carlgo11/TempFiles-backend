@@ -11,10 +11,10 @@ function return404() {
 	exit;
 }
 
-$url = explode('/', strtoupper($_SERVER['REQUEST_URI']));
-$id = filter_var($url[1]);
+$url = explode('/', $_SERVER['REQUEST_URI']);
+$id = filter_var(strtoupper($url[1]), FILTER_VALIDATE_REGEXP, ['options' => ['regexp' => '/^D([0-9]|[A-Z]){14}/']]);
 $password = filter_var($url[2]);
-if (is_null($password)) die("No password specified.");
+if (is_null($password)|| is_null($id)) die("Missing ID or password.");
 try {
 	$file = DataStorage::getFile($id, $password);
 } catch (Exception $ex) {
@@ -22,7 +22,6 @@ try {
 }
 
 $metadata = $file->getMetaData();
-$content = base64_encode($file->getContent());
 
 if ($file->getMaxViews()) { // max views > 0
 	if ($file->getMaxViews() <= $file->getCurrentViews() + 1) DataStorage::deleteFile($id);
@@ -38,4 +37,4 @@ header("Content-Disposition: inline; filename=\"{$metadata['name']}\"");
 header("Content-Length: {$metadata['size']}");
 
 // output file contents
-echo base64_decode($content);
+echo $file->getContent();
