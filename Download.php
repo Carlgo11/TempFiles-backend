@@ -13,13 +13,14 @@ function return404() {
 
 $url = explode('/', strtoupper($_SERVER['REQUEST_URI']));
 $id = filter_var($url[1]);
-$password = filter_input(INPUT_GET, "p");
+$password = filter_var($url[2]);
 if (is_null($password)) die("No password specified.");
 try {
 	$file = DataStorage::getFile($id, $password);
 } catch (Exception $ex) {
 	return404();
 }
+
 $metadata = $file->getMetaData();
 $content = base64_encode($file->getContent());
 
