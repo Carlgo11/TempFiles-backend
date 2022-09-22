@@ -19,27 +19,30 @@ class Download extends API {
 		try {
 			if ($method !== 'GET') throw new BadMethod('Bad method. Use GET.');
 
-			$id = filter_var(Misc::getVar('id'), FILTER_VALIDATE_REGEXP, ['options' => ['regexp' => '/^D([0-9]|[A-z]){13}/']]);
-			$p = Misc::getVar('p');
-			$file = DataStorage::getFile($id, $p);
+			$url = explode('/', strtoupper($_SERVER['REQUEST_URI']));
+			$id = filter_var($url[2], FILTER_VALIDATE_REGEXP, ['options' => ['regexp' => '/^D([0-9]|[A-z]){13}/']]);
+			$password = filter_var($url[3]);
+			$file = DataStorage::getFile($id, $password);
+			$metadata = $file->getMetaData();
+			$content = base64_encode($file->getContent());
 
-			if (isset($file)) {
-				$metadata = $file->getMetaData();
-				$content = base64_encode($file->getContent());
-				parent::outputJSON([
-					'type' => $metadata['type'],
-					'filename' => $metadata['name'],
-					'length' => $metadata['size'],
-					'data' => $content
-				], 200);
+			if ($file->getMaxViews()) { // max views > 0
+				if ($file->getMaxViews() <= $file->getCurrentViews() + 1) DataStorage::deleteFile($id);
+				else $file->setCurrentViews($file->getCurrentViews() + 1);
+			}
+			// Set headers
+			header("Content-Description: File Transfer");
+			header("Expires: 0");
+			header("Pragma: public");
+			header("Content-Type: {$metadata['type']}");
+			header("Content-Disposition: inline; filename=\"{$metadata['name']}\"");
+			header("Content-Length: {$metadata['size']}");
 
-				if ($file->getMaxViews()) { // max views > 0
-					if ($file->getMaxViews() <= $file->getCurrentViews() + 1) DataStorage::deleteFile($id);
-					else $file->setCurrentViews($file->getCurrentViews() + 1);
-				}
-			} else throw new MissingEntry('File not found');
+			// output file contents
+			echo base64_decode($content);
 		} catch (Exception $e) {
-			parent::outputJSON(['error' => $e->getMessage()], $e->getCode() ?: 400);
+			parent::outputJSON(['error' => 'File not found'], 404);
+			error_log($e->getMessage());
 		}
 		return NULL;
 	}
